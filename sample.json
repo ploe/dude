@@ -1,0 +1,22 @@
+{
+  "people": {
+    "db": "people",
+    "item": {
+      "get": {
+        "data": {
+          "name": "{{ row.forename }}",
+          "age": "{{ row.age }}"
+        },
+        "types": {
+          "name": "string",
+          "age": "int"
+        },
+	"params": ["{{ uri.id }}"],
+        "query": "SELECT * FROM things WHERE id=?"
+	}
+      }
+    }
+  ,
+  "toys": {},
+  "orders": {}
+}
