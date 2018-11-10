@@ -13,7 +13,7 @@
         },
         "query": {
           "op": "SELECT * FROM people WHERE id=%s",
-	  "params": ["{{ uri.id }}"]
+	  "params": ["{{ uri.tag }}"]
 	}
       }
   },

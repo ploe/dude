@@ -5,6 +5,8 @@ import json
 from flask import Flask
 app = Flask(__name__)
 
+from jinja2 import Template
+
 import MySQLdb
 
 sample = {
@@ -12,7 +14,7 @@ sample = {
 }
 
 class MysqlDriver():
-	def __init__(self):
+	def __init__(self, uri):
 		self.db = MySQLdb.connect(
   			host="localhost",
  			user="root",
@@ -21,12 +23,18 @@ class MysqlDriver():
 		)
 
 		self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
+		self.uri = uri
 
 	def __del__(self):
 		self.db.close()
 
-	def query(self, op, params):
-		self.cursor.execute(op, params)
+	def query(self, query):
+		params = []
+		for param in query['params']:
+			t = Template(param)
+			params.append(t.render(uri=self.uri))
+
+		self.cursor.execute(query['op'], params)
 		return self.cursor.fetchall()
 
 
@@ -43,12 +51,11 @@ def list(resource):
 
 @app.route("/<string:resource>/<string:tag>")
 def item(resource, tag):
-	db = MysqlDriver()
+	db = MysqlDriver({ 'resource': resource, 'tag': tag })
 
 	endpoint = sample[resource]
 
 	query = endpoint['item']['get']['query']
-	print(query)
-	item = db.query(query['op'], (52,))
+	item = db.query(query)
 
 	return json.dumps(item), 200, {'Content-Type': 'application/json'}
