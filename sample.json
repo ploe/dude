@@ -4,8 +4,9 @@
     "item": {
       "get": {
         "data": {
-          "name": "{{ row.forename }}",
-          "age": "{{ row.age }}"
+          "name": "{{ this.name }}",
+          "age": "{{ this.age }}",
+          "bio": "{{ this.name }} likes {{ this.hobbies }}"
         },
         "types": {
           "name": "string",
