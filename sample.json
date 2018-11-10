@@ -11,12 +11,13 @@
           "name": "string",
           "age": "int"
         },
-	"params": ["{{ uri.id }}"],
-        "query": "SELECT * FROM things WHERE id=?"
+        "query": {
+          "op": "SELECT * FROM people WHERE id=%s",
+	  "params": ["{{ uri.id }}"]
 	}
       }
-    }
-  ,
+  },
   "toys": {},
   "orders": {}
+  }
 }
