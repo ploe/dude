@@ -1,30 +1,33 @@
 {
-  "people": {
-    "db": "people",
-    "member": {
-      "get": {
-        "data": {
-          "name": "{{ this.name }}",
-          "age": "{{ this.age }}",
-          "bio": "{{ this.name }} likes {{ this.hobbies }}"
-        },
-        "types": {
-          "name": "string",
-          "age": "integer"
-        },
-        "query": {
-          "op": "SELECT * FROM people WHERE id=%s",
+  "name": "people",
+  "desc": "A list of people their ages and their hobbies in MySQL",
+  "driver": "mysql",
+
+  "member": {
+    "get": {
+      "data": {
+        "name": "{{ this.name }}",
+        "age": "{{ this.age }}",
+        "bio": "{{ this.name }} likes {{ this.hobbies }}"
+      },
+      "types": {
+        "name": "string",
+        "age": "integer"
+      },
+      "query": {
+        "op": "SELECT * FROM people WHERE id=%s",
 	  "params": ["{{ uri.member }}"]
-	}
       }
-    },
-    "collection": {
-      "post": {
-        "query": {
+    }
+  },
+
+  "collection": {
+    "post": {
+      "query": {
 	   "op": "INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)",
-           "params": ["{{ url.name }}", "{{ url.age }}", "{{ url.hobbies  }}"]
-        }
+         "params": ["{{ url.name }}", "{{ url.age }}", "{{ url.hobbies  }}"]
       }
     }
   }
+
 }

@@ -9,10 +9,6 @@ from jinja2 import Template
 
 import MySQLdb
 
-sample = {
-	"hello": "world", "hi": "hello"
-}
-
 class MysqlDriver():
 	def __init__(self, uri, url):
 		self.db = MySQLdb.connect(
@@ -54,9 +50,10 @@ class MysqlDriver():
 
 		return True
 
-
+domain = {}
 with open("sample.json") as data:
 	sample = json.load(data)
+	domain[sample['name']] = sample
 
 def ok(output):
 	return respond(output, 200)
@@ -84,7 +81,7 @@ def collection_get(collection):
 def member_get(collection, member):
 	db = MysqlDriver({ 'collection': collection, 'member': member }, g.url)
 
-	endpoint = sample[collection]['member']['get']
+	endpoint = domain[collection]['member']['get']
 
 	query = endpoint['query']
 	results = db.member_get(query)
@@ -118,7 +115,7 @@ def member_get(collection, member):
 def collection_post(collection):
 	db = MysqlDriver({ 'collection': collection }, g.url)
 
-	endpoint = sample[collection]['collection']['post']
+	endpoint = domain[collection]['collection']['post']
 
 	query = endpoint['query']
 	db.collection_post(query)
