@@ -10,15 +10,21 @@
         },
         "types": {
           "name": "string",
-          "age": "int"
+          "age": "integer"
         },
         "query": {
           "op": "SELECT * FROM people WHERE id=%s",
 	  "params": ["{{ uri.tag }}"]
 	}
       }
-  },
-  "toys": {},
-  "orders": {}
+    },
+    "list": {
+      "post": {
+        "query": {
+	   "op": "INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)",
+           "params": ["{{ url.name }}", "{{ url.age }}", "{{ url.hobbies  }}"]
+        }
+      }
+    }
   }
 }

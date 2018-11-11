@@ -27,19 +27,34 @@ class MysqlDriver():
 		self.url = url
 
 	def __del__(self):
+		self.cursor.close()
 		self.db.close()
 
 	def jinja(self, param):
 		t = Template(param)
 		return t.render(uri=self.uri, url=self.url)
 
-	def query(self, query):
+	def jinja_params(self, src):
 		params = []
-		for param in query['params']:
+		for param in src:
 			params.append( self.jinja(param) )
+
+		return params
+
+	def item_get(self, query):
+		
+		params = self.jinja_params(query['params'])
 
 		self.cursor.execute(query['op'], params)
 		return self.cursor.fetchall()
+
+	def list_post(self, query):
+		params = self.jinja_params(query['params'])
+		self.cursor.execute(query['op'], params)
+		self.db.commit()
+
+		return True
+
 
 with open("sample.json") as data:
 	sample = json.load(data)
@@ -66,14 +81,14 @@ def root():
 def list(resource):
 	return resource, 200, {'Content-Type': 'application/json'}
 
-@app.route("/<string:resource>/<string:tag>", strict_slashes=False)
-def item(resource, tag):
+@app.route("/<string:resource>/<string:tag>", methods=['GET'], strict_slashes=False)
+def get_item(resource, tag):
 	db = MysqlDriver({ 'resource': resource, 'tag': tag }, g.url)
 
 	endpoint = sample[resource]['item']['get']
 
 	query = endpoint['query']
-	item = db.query(query)
+	item = db.item_get(query)
 
 	if len(item) != 1:
 		abort(500)
@@ -84,15 +99,37 @@ def item(resource, tag):
 	types = endpoint['types']
 
 	output = {}
-	for key, value in data.iteritems():
-		t = Template(value)
-		output[key] = t.render(this=this)
+	for key, raw in data.iteritems():
+		t = Template(raw)
+		value = t.render(this=this)
+		convert = types.get(key, '')
+
+		if convert == 'boolean':
+			output[key] = bool(value)
+		elif convert == 'integer':
+			output[key] = int(value)
+		elif convert == 'number':
+			output[key] = float(value)
+		else:
+			output[key] = value
 	
 	return ok(output)
 
+@app.route("/<string:resource>", methods=['POST'], strict_slashes=False)
+def post_item(resource):
+	db = MysqlDriver({ 'resource': resource }, g.url)
+
+	endpoint = sample[resource]['list']['post']
+
+	query = endpoint['query']
+	item = db.list_post(query)
+
+	return ok({'posted': True})
+
+
 @app.errorhandler(404)
 def not_found(error):
-    return respond({'error': request.base_url}, 404)
+    return respond({'error': request.base_url }, 404)
 
 @app.errorhandler(500)
 def internal_error(error):
