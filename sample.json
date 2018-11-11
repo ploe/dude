@@ -1,7 +1,7 @@
 {
   "people": {
     "db": "people",
-    "item": {
+    "member": {
       "get": {
         "data": {
           "name": "{{ this.name }}",
@@ -14,11 +14,11 @@
         },
         "query": {
           "op": "SELECT * FROM people WHERE id=%s",
-	  "params": ["{{ uri.tag }}"]
+	  "params": ["{{ uri.member }}"]
 	}
       }
     },
-    "list": {
+    "collection": {
       "post": {
         "query": {
 	   "op": "INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)",

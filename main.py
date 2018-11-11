@@ -2,7 +2,7 @@
 
 import json
 
-from flask import Flask, request, g
+from flask import abort, Flask, g, jsonify, request
 app = Flask(__name__)
 
 from jinja2 import Template
@@ -41,14 +41,13 @@ class MysqlDriver():
 
 		return params
 
-	def item_get(self, query):
-		
+	def member_get(self, query):
 		params = self.jinja_params(query['params'])
 
 		self.cursor.execute(query['op'], params)
 		return self.cursor.fetchall()
 
-	def list_post(self, query):
+	def collection_post(self, query):
 		params = self.jinja_params(query['params'])
 		self.cursor.execute(query['op'], params)
 		self.db.commit()
@@ -63,7 +62,7 @@ def ok(output):
 	return respond(output, 200)
 
 def respond(output, code):
-	return json.dumps(output), 200, {'Content-Type': 'application/json'}
+	return jsonify(output), 200, {'Content-Type': 'application/json'}
 
 @app.before_request
 def before_request():
@@ -77,23 +76,23 @@ def before_request():
 def root():
 	return "{'hi': 'hello'}", 200,  {'Content-Type': 'application/json'}
 
-@app.route("/<string:resource>", strict_slashes=False)
-def list(resource):
-	return resource, 200, {'Content-Type': 'application/json'}
+@app.route("/<string:collection>", strict_slashes=False)
+def collection_get(collection):
+	return collection, 200, {'Content-Type': 'application/json'}
 
-@app.route("/<string:resource>/<string:tag>", methods=['GET'], strict_slashes=False)
-def get_item(resource, tag):
-	db = MysqlDriver({ 'resource': resource, 'tag': tag }, g.url)
+@app.route("/<string:collection>/<string:member>", methods=['GET'], strict_slashes=False)
+def member_get(collection, member):
+	db = MysqlDriver({ 'collection': collection, 'member': member }, g.url)
 
-	endpoint = sample[resource]['item']['get']
+	endpoint = sample[collection]['member']['get']
 
 	query = endpoint['query']
-	item = db.item_get(query)
+	results = db.member_get(query)
 
-	if len(item) != 1:
+	if len(results) > 1:
 		abort(500)
 
-	this = item[0]
+	this = results[0]
 
 	data = endpoint['data']
 	types = endpoint['types']
@@ -115,14 +114,14 @@ def get_item(resource, tag):
 	
 	return ok(output)
 
-@app.route("/<string:resource>", methods=['POST'], strict_slashes=False)
-def post_item(resource):
-	db = MysqlDriver({ 'resource': resource }, g.url)
+@app.route("/<string:collection>", methods=['POST'], strict_slashes=False)
+def collection_post(collection):
+	db = MysqlDriver({ 'collection': collection }, g.url)
 
-	endpoint = sample[resource]['list']['post']
+	endpoint = sample[collection]['collection']['post']
 
 	query = endpoint['query']
-	item = db.list_post(query)
+	db.collection_post(query)
 
 	return ok({'posted': True})
 
