@@ -31,7 +31,8 @@
         "id": "integer"
       },
       "transforms": [
-        { "op": "limit", "limit": "{{ url.limit }}" }
+        { "op": "limit", "limit": "{{ url.limit }}" },
+        { "op": "pagify", "amount": 10, "page": "{{ url.page }}" }
       ],
       "query": {
         "op": "SELECT id, name FROM people"

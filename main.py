@@ -79,14 +79,19 @@ def ok(output):
 def respond(output, code):
 	return jsonify(output), code, {'Content-Type': 'application/json'}
 
+def render(src, params):
+	src = str(src)
+
+	t = Template(src)
+	return t.render(**params)
+
 def render_member(this, endpoint):
 	data = endpoint['data']
 	types = endpoint.get('types', {})
 
 	output = {}
-	for key, raw in data.iteritems():
-		t = Template(raw)
-		value = t.render(this=this)
+	for key, src in data.iteritems():
+		value = render(src, {'this': this})
 		convert = types.get(key, '')
 
 		if convert == 'boolean':
@@ -122,22 +127,29 @@ def collection_get(collection):
 	for this in results:
 		output.append( render_member(this, endpoint) )
 
+	params = { 'collection': collection, 'url': g.url }
 	transforms = endpoint.get('transforms', [])
 	for transform in transforms:
 		op = transform.get('op', '')
 
 		value = None
 		if op in ('limit', 'sort'):
-			t = Template(transform[op])
-			value = t.render(url=g.url)
+			value = render(transform[op], params)
 
 		if op == 'limit':
 			try:
 				limit = int(value)
 				output = output[:limit]
-
 			except ValueError:
 				pass
+
+		if op == 'pagify':
+			page = int(render(transform['page'], params))
+			amount = int(render(transform['amount'], params))
+
+			start = (amount * page) - amount
+			end = start + amount
+			output = output[start:end]
 	
 	return ok(output)
 
