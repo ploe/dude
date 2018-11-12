@@ -22,12 +22,29 @@
   },
 
   "collection": {
+    "get": {
+      "data": {
+        "id": "{{ this.id }}",
+        "uri": "/people/{{ this.id }}"
+      },
+      "types": {
+        "id": "integer"
+      },
+      "transforms": [
+        { "op": "limit", "limit": "{{ url.limit }}" }
+      ],
+      "query": {
+        "op": "SELECT id, name FROM people"
+      }
+    },
+
     "post": {
       "query": {
-	   "op": "INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)",
+	 "op": "INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)",
          "params": ["{{ url.name }}", "{{ url.age }}", "{{ url.hobbies  }}"]
       }
     }
+
   }
 
 }
