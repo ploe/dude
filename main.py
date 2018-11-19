@@ -10,7 +10,7 @@ from jinja2 import Template
 import MySQLdb
 
 class MysqlDriver():
-	def __init__(self, uri, url):
+	def __init__(self, params):
 		self.db = MySQLdb.connect(
   			host="localhost",
  			user="root",
@@ -19,8 +19,8 @@ class MysqlDriver():
 		)
 
 		self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
-		self.uri = uri
-		self.url = url
+		self.uri = params['uri']
+		self.url = params['url']
 
 	def __del__(self):
 		self.cursor.close()
@@ -54,6 +54,9 @@ class MysqlDriver():
 
 		return params
 
+	def get(self, query):
+		return self.read(query)
+
 	def member_get(self, query):
 		return self.read(query)
 
@@ -68,12 +71,53 @@ class MysqlDriver():
 
 		return True
 
+class Endpoint():
+	def __init__(self, params, data):
+		self.data = data
+		self.params = params
+		self.db = MysqlDriver(params)
+
+	def get(self):
+		query = self.data['get'].get('query', {})
+		self.results = self.db.get(query)
+
+		return self.transform('get')
+
+	def transform(self, method):
+		transforms = self.data[method].get('transforms', {})
+
+		for transform in transforms:
+			op = transform.get('op', '')
+	
+			op = getattr(self, op, None)
+			if op:
+				self.results = op(transform)
+
+		return self.results
+
+	def limit(self, transform):
+		try:
+			limit = int( render(transform['limit'], self.params) )
+			return self.results[:limit]
+		except ValueError:
+	  		pass
+
+		return self.results
+	  
+	def pagify(self, transform):
+		page = int(render(transform['page'], self.params))
+		amount = int(render(transform['amount'], self.params))
+
+		start = (amount * page) - amount
+		end = start + amount
+		return self.results[start:end]
+
 domain = {}
 with open("sample.json") as data:
 	sample = json.load(data)
 	domain[sample['name']] = sample
 
-def ok(output):
+def respond_ok(output):
 	return respond(output, 200)
 
 def respond(output, code):
@@ -117,41 +161,19 @@ def root():
 	return "{'hi': 'hello'}", 200,  {'Content-Type': 'application/json'}
 
 @app.route("/<string:collection>", methods=['GET'], strict_slashes=False)
-def collection_get(collection): 
-	db = MysqlDriver({ 'collection': collection }, g.url)
-	endpoint = domain[collection]['collection']['get']
+def collection_get(collection):
+	params = { 
+		'uri': { 'collection': collection },
+		'url': g.url,
+	}
 
-	results = db.collection_get(endpoint['query'])
+	endpoint = Endpoint( 
+		params, 
+		domain[collection]['collection'], 
+	)
 
-	output = []
-	for this in results:
-		output.append( render_member(this, endpoint) )
-
-	params = { 'collection': collection, 'url': g.url }
-	transforms = endpoint.get('transforms', [])
-	for transform in transforms:
-		op = transform.get('op', '')
-
-		value = None
-		if op in ('limit', 'sort'):
-			value = render(transform[op], params)
-
-		if op == 'limit':
-			try:
-				limit = int(value)
-				output = output[:limit]
-			except ValueError:
-				pass
-
-		if op == 'pagify':
-			page = int(render(transform['page'], params))
-			amount = int(render(transform['amount'], params))
-
-			start = (amount * page) - amount
-			end = start + amount
-			output = output[start:end]
-	
-	return ok(output)
+	output = endpoint.get()	
+	return respond_ok(output)
 
 @app.route("/<string:collection>/<string:member>", methods=['GET'], strict_slashes=False)
 def member_get(collection, member):
@@ -169,7 +191,7 @@ def member_get(collection, member):
 
 	output = render_member(this, endpoint)
 	
-	return ok(output)
+	return respond_ok(output)
 
 @app.route("/<string:collection>", methods=['POST'], strict_slashes=False)
 def collection_post(collection):
@@ -180,12 +202,12 @@ def collection_post(collection):
 	query = endpoint['query']
 	db.collection_post(query)
 
-	return ok({'posted': True})
+	return respond_ok({'posted': True})
 
 @app.errorhandler(404)
 def not_found(error):
-    return respond({'error': request.base_url }, 404)
+	return respond({'error': request.base_url }, 404)
 
 @app.errorhandler(500)
 def internal_error(error):
-    return respond({'error': 'internal server error'}, 500)
+	return respond({'error': 'internal server error'}, 500)
