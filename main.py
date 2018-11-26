@@ -7,55 +7,7 @@ from flask import abort, Flask, g, jsonify, request
 app = Flask(__name__)
 from jinja2 import Template
 
-from MysqlDriver import Driver as mysql
-from MongoDriver import Driver as mongo
-
-class Endpoint():
-	def __init__(self, params, data, driver):
-		self.data = data
-		self.params = params
-		self.db = self.driver(driver)(params)
-
-	def driver(self, key):
-		return {
-			'mongo': mongo,
-			'mysql': mysql,
-		}[ key ]
-
-	def get(self):
-		query = self.data['get'].get('query', {})
-		self.results = self.db.get(query)
-
-		return self.transform('get')
-
-	def transform(self, method):
-		transforms = self.data[method].get('transforms', {})
-
-		for transform in transforms:
-			op = transform.get('op', '')
-	
-			op = getattr(self, op, None)
-			if op:
-				self.results = op(transform)
-
-		return self.results
-
-	def limit(self, transform):
-		try:
-			limit = int( render(transform['limit'], self.params) )
-			return self.results[:limit]
-		except ValueError:
-	  		pass
-
-		return self.results
-	  
-	def pagify(self, transform):
-		page = int(render(transform['page'], self.params))
-		amount = int(render(transform['amount'], self.params))
-
-		start = (amount * page) - amount
-		end = start + amount
-		return self.results[start:end]
+from Endpoint import Endpoint
 
 domain = {}
 for c in glob('*.json'):
@@ -68,12 +20,6 @@ def respond_ok(output):
 
 def respond(output, code):
 	return jsonify(output), code, {'Content-Type': 'application/json'}
-
-def render(src, params):
-	src = str(src)
-
-	t = Template(src)
-	return t.render(**params)
 
 def render_member(this, endpoint):
 	data = endpoint['data']

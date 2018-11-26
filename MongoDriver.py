@@ -18,5 +18,3 @@ class Driver(BaseDriver):
 			output.append(member)
 
 		return output
-
-
