@@ -4,78 +4,15 @@ import json
 
 from flask import abort, Flask, g, jsonify, request
 app = Flask(__name__)
-
 from jinja2 import Template
 
-import MySQLdb
-
-class MysqlDriver():
-	def __init__(self, params):
-		self.db = MySQLdb.connect(
-  			host="localhost",
- 			user="root",
-  			passwd="+zQx57?4$9",
-  			db="crud"
-		)
-
-		self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
-		self.uri = params['uri']
-		self.url = params['url']
-
-	def __del__(self):
-		self.cursor.close()
-		self.db.close()
-
-	def read(self, query):
-		params = self.jinja_params(query)
-
-		self.cursor.execute(query['op'], params)
-		return self.cursor.fetchall()
-
-	def write(self, query):
-		params = self.jinja_params(query)
-
-		self.cursor.execute(query['op'], params)
-		self.db.commit()
-
-		return True
-
-	def jinja(self, param):
-		t = Template(param)
-		return t.render(uri=self.uri, url=self.url)
-
-	def jinja_params(self, query):
-		src = query.get('params', None)
-
-		params = []
-		if src != None:
-			for param in src:
-				params.append( self.jinja(param) )
-
-		return params
-
-	def get(self, query):
-		return self.read(query)
-
-	def member_get(self, query):
-		return self.read(query)
-
-	def collection_get(self, query):
-		return self.read(query)
-
-	def collection_post(self, query):
-		params = self.jinja_params(query)
-
-		self.cursor.execute(query['op'], params)
-		self.db.commit()
-
-		return True
+from MysqlDriver import Driver as mysql
 
 class Endpoint():
 	def __init__(self, params, data):
 		self.data = data
 		self.params = params
-		self.db = MysqlDriver(params)
+		self.db = mysql(params)
 
 	def get(self):
 		query = self.data['get'].get('query', {})
@@ -177,7 +114,7 @@ def collection_get(collection):
 
 @app.route("/<string:collection>/<string:member>", methods=['GET'], strict_slashes=False)
 def member_get(collection, member):
-	db = MysqlDriver({ 'collection': collection, 'member': member }, g.url)
+	db = mysql({ 'collection': collection, 'member': member }, g.url)
 
 	endpoint = domain[collection]['member']['get']
 
@@ -195,7 +132,7 @@ def member_get(collection, member):
 
 @app.route("/<string:collection>", methods=['POST'], strict_slashes=False)
 def collection_post(collection):
-	db = MysqlDriver({ 'collection': collection }, g.url)
+	db = mysql({ 'collection': collection }, g.url)
 
 	endpoint = domain[collection]['collection']['post']
 
