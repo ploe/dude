@@ -1,18 +1,26 @@
 #! $(env python)
 
 import json
+from glob import glob
 
 from flask import abort, Flask, g, jsonify, request
 app = Flask(__name__)
 from jinja2 import Template
 
 from MysqlDriver import Driver as mysql
+from MongoDriver import Driver as mongo
 
 class Endpoint():
-	def __init__(self, params, data):
+	def __init__(self, params, data, driver):
 		self.data = data
 		self.params = params
-		self.db = mysql(params)
+		self.db = self.driver(driver)(params)
+
+	def driver(self, key):
+		return {
+			'mongo': mongo,
+			'mysql': mysql,
+		}[ key ]
 
 	def get(self):
 		query = self.data['get'].get('query', {})
@@ -50,9 +58,10 @@ class Endpoint():
 		return self.results[start:end]
 
 domain = {}
-with open("sample.json") as data:
-	sample = json.load(data)
-	domain[sample['name']] = sample
+for c in glob('*.json'):
+	with open(c) as data:
+		sample = json.load(data)
+		domain[sample['name']] = sample
 
 def respond_ok(output):
 	return respond(output, 200)
@@ -99,14 +108,16 @@ def root():
 
 @app.route("/<string:collection>", methods=['GET'], strict_slashes=False)
 def collection_get(collection):
-	params = { 
+	params = {
 		'uri': { 'collection': collection },
 		'url': g.url,
 	}
 
+	driver = domain[collection]['driver']
 	endpoint = Endpoint( 
 		params, 
-		domain[collection]['collection'], 
+		domain[collection]['collection'],
+		driver,
 	)
 
 	output = endpoint.get()	

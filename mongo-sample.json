@@ -1,0 +1,15 @@
+{
+  "name": "posts",
+  "desc": "a list of posts",
+  "driver": "mongo",
+
+  "collection": {
+    "get": {
+      "query": {
+        "collection": "posts",
+	"db": "pont",
+        "op": {}
+      }
+    }
+  }
+}
