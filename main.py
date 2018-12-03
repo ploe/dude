@@ -1,133 +1,25 @@
 #! $(env python)
 
 import json
+from glob import glob
 
 from flask import abort, Flask, g, jsonify, request
 app = Flask(__name__)
-
 from jinja2 import Template
 
-import MySQLdb
-
-class MysqlDriver():
-	def __init__(self, params):
-		self.db = MySQLdb.connect(
-  			host="localhost",
- 			user="root",
-  			passwd="+zQx57?4$9",
-  			db="crud"
-		)
-
-		self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
-		self.uri = params['uri']
-		self.url = params['url']
-
-	def __del__(self):
-		self.cursor.close()
-		self.db.close()
-
-	def read(self, query):
-		params = self.jinja_params(query)
-
-		self.cursor.execute(query['op'], params)
-		return self.cursor.fetchall()
-
-	def write(self, query):
-		params = self.jinja_params(query)
-
-		self.cursor.execute(query['op'], params)
-		self.db.commit()
-
-		return True
-
-	def jinja(self, param):
-		t = Template(param)
-		return t.render(uri=self.uri, url=self.url)
-
-	def jinja_params(self, query):
-		src = query.get('params', None)
-
-		params = []
-		if src != None:
-			for param in src:
-				params.append( self.jinja(param) )
-
-		return params
-
-	def get(self, query):
-		return self.read(query)
-
-	def member_get(self, query):
-		return self.read(query)
-
-	def collection_get(self, query):
-		return self.read(query)
-
-	def collection_post(self, query):
-		params = self.jinja_params(query)
-
-		self.cursor.execute(query['op'], params)
-		self.db.commit()
-
-		return True
-
-class Endpoint():
-	def __init__(self, params, data):
-		self.data = data
-		self.params = params
-		self.db = MysqlDriver(params)
-
-	def get(self):
-		query = self.data['get'].get('query', {})
-		self.results = self.db.get(query)
-
-		return self.transform('get')
-
-	def transform(self, method):
-		transforms = self.data[method].get('transforms', {})
-
-		for transform in transforms:
-			op = transform.get('op', '')
-	
-			op = getattr(self, op, None)
-			if op:
-				self.results = op(transform)
-
-		return self.results
-
-	def limit(self, transform):
-		try:
-			limit = int( render(transform['limit'], self.params) )
-			return self.results[:limit]
-		except ValueError:
-	  		pass
-
-		return self.results
-	  
-	def pagify(self, transform):
-		page = int(render(transform['page'], self.params))
-		amount = int(render(transform['amount'], self.params))
-
-		start = (amount * page) - amount
-		end = start + amount
-		return self.results[start:end]
+from Endpoint import Endpoint
 
 domain = {}
-with open("sample.json") as data:
-	sample = json.load(data)
-	domain[sample['name']] = sample
+for c in glob('*.json'):
+	with open(c) as data:
+		sample = json.load(data)
+		domain[sample['name']] = sample
 
 def respond_ok(output):
 	return respond(output, 200)
 
 def respond(output, code):
 	return jsonify(output), code, {'Content-Type': 'application/json'}
-
-def render(src, params):
-	src = str(src)
-
-	t = Template(src)
-	return t.render(**params)
 
 def render_member(this, endpoint):
 	data = endpoint['data']
@@ -162,14 +54,16 @@ def root():
 
 @app.route("/<string:collection>", methods=['GET'], strict_slashes=False)
 def collection_get(collection):
-	params = { 
+	params = {
 		'uri': { 'collection': collection },
 		'url': g.url,
 	}
 
+	driver = domain[collection]['driver']
 	endpoint = Endpoint( 
 		params, 
-		domain[collection]['collection'], 
+		domain[collection]['collection'],
+		driver,
 	)
 
 	output = endpoint.get()	
@@ -177,7 +71,7 @@ def collection_get(collection):
 
 @app.route("/<string:collection>/<string:member>", methods=['GET'], strict_slashes=False)
 def member_get(collection, member):
-	db = MysqlDriver({ 'collection': collection, 'member': member }, g.url)
+	db = mysql({ 'collection': collection, 'member': member }, g.url)
 
 	endpoint = domain[collection]['member']['get']
 
@@ -195,7 +89,7 @@ def member_get(collection, member):
 
 @app.route("/<string:collection>", methods=['POST'], strict_slashes=False)
 def collection_post(collection):
-	db = MysqlDriver({ 'collection': collection }, g.url)
+	db = mysql({ 'collection': collection }, g.url)
 
 	endpoint = domain[collection]['collection']['post']
 
