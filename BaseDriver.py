@@ -16,6 +16,3 @@ class BaseDriver():
 				params.append( self.jinja(param) )
 
 		return params
-
-	def get(self, query):
-		return []
