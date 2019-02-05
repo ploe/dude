@@ -4,45 +4,6 @@ from flask import abort, Flask, g, jsonify, request
 app = Flask(__name__)
 from jinja2 import Template
 
-class BaseDriver():
-    def jinja(self, param):
-        t = Template(param)
-	return t.render(uri=self.uri, url=self.url)
-
-    def jinja_params(self, query):
-        src = query.get('params', None)
-
-	params = []
-	if src != None:
-	    for param in src:
-                params.append( self.jinja(param) )
-
-	return params
-
-class MySQLDriver:
-    def __init__(self, params):
-        self.db = MySQLdb.connect(
-  	    host="localhost",
- 	    user="root",
-  	    passwd="+zQx57?4$9",
-  	    db="crud"
-	)
-
-	self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
-	self.uri = params['uri']
-	self.url = params['url']
-
-    def post(member, query):
-        params = self.jinja_params(query)
-
-        try:
-            self.cursor.execute(query['op'], params)
-            self.db.commit()
-        except:
-            return False
-
-        return self.cursor.lastrowid
-
 class Endpoint:
     def __init__(self, params):
         self.params = struct
