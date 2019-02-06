@@ -1,53 +1,124 @@
 ---
-name: people
-desc: A list of people their ages and their hobbies in MySQL
-driver: mysql
+enabled: true
+endpoint: people
+info: This endpoint is for saving and restoring people.
 
-DELETE:
-  collection: # nuke the bloody lot
-  member: # delete the addressed member
-
-GET:
-  collection: # when addressed as a collection this set of queries and transforms are done
+CREATE:
+  - op: create
     query:
-      op: SELECT id, name FROM people
-    transforms:
-    - op: limit
-      limit: "{{ url.limit }}"
-    - op: pagify
-      amount: 10
-      page: "{{ url.page }}"
-
-  member: # when addressed as a member this query and transform is done
-    query:
-      op: SELECT * FROM people WHERE id=%s
-      params:
-      - "{{ uri.member }}"
-    transforms:
-    - op: data
-      data:
-        name: "{{ this.name }}"
-        age: "{{ this.age }}"
-        bio: "{{ this.name }} likes {{ this.hobbies }}"
-    - op: types
-      types:
-        name: string
-        age: integer
-
-POST:
-  collection: # inserts a new entries in to the collection
-    query:
+      datastore: MySQL
       op: INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)
       params:
       - "{{ url.name }}"
       - "{{ url.age }}"
       - "{{ url.hobbies  }}"
-   # member not used
+READ:
+  item:
+  - op: SELECT * FROM people WHERE id=%s
+    params:
+    - "{{ uri.member }}"
 
-PUT:
-  collection: # replace entire collection with whatever we've got, maybe could hook in to DELETE
-  member: # replace the existing members, or create
+  resource:
+  - op: cache
+    dest: ['cached', '_']
+    query:
+      command: GET
+      datastore: Redis cache
+      key: "{{ endpoint }}"
 
-PATCH:
-  # collection not used
-  member: # update the members
+  - op: continue
+    if:
+    - not cached
+
+  - op: read
+    dest: ['people', '_']
+    if:
+    - not cached
+    query: 
+      datastore: MySQL
+      op: SELECT id, name FROM people
+
+  - op: cache
+    src: people
+    query:
+      command: SET
+      datastore: Redis cache
+      key: "{{ endpoint }}"
+
+  - op: evolve
+    inherit:
+    - name
+    - age
+    - created
+    mutate:
+      formal: "Sir {{ this.name }}"
+      lucky:
+        data: "{{ this.age - 13 }}"
+        type: integer
+      expires:
+        key: created
+        type: datetime
+        +delta:
+          weeks: 2
+      timestamp:
+        key: created
+        type: string
+
+   - op: accept
+     when:
+     - this.lucky != 13
+     - this.expires >= now
+
+  - op: regex
+    action: reject
+    keys:
+    - name
+    patterns:
+    - '^Myke'
+
+  - op: join
+    dest: telephone directory
+    join: ['id', 'people_id']
+    left inherit:
+    - id
+    - name
+    right inherit:
+    - telephone_number
+    mutate:
+      employee details: "{{ left.name }} {{ right.phonenumber }}-{{ right.extension  }} "
+    src: ['people', 'phone numbers']
+    type: outer
+
+  - op: group
+    dest: group by name
+    keys:
+    - name
+    mutate:
+      name: "{{ group.max('created', name) }}"
+      man years:
+        data: "{{ group.sum('age') }}"
+        type: integer
+      average:
+        data: "{{ group.avg('age') }}"
+        type: number
+
+  - op: evolve
+    inherit:
+    - name
+    - age
+    - created
+    - formal
+    - timestamp
+
+  - op: limit
+    limit: "{{ url.limit }}"
+
+  - op: pagify
+    amount: 10
+    pages: "{{ url.page }}"
+
+UPDATE:
+  - op: update
+
+DELETE:
+  - op: delete
