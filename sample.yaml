@@ -1,0 +1,124 @@
+---
+enabled: true
+endpoint: people
+info: This endpoint is for saving and restoring people.
+
+CREATE:
+  - op: create
+    query:
+      datastore: MySQL
+      op: INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)
+      params:
+      - "{{ url.name }}"
+      - "{{ url.age }}"
+      - "{{ url.hobbies  }}"
+READ:
+  item:
+  - op: SELECT * FROM people WHERE id=%s
+    params:
+    - "{{ uri.member }}"
+
+  resource:
+  - op: cache
+    dest: ['cached', '_']
+    query:
+      command: GET
+      datastore: Redis cache
+      key: "{{ endpoint }}"
+
+  - op: continue
+    if:
+    - not cached
+
+  - op: read
+    dest: ['people', '_']
+    if:
+    - not cached
+    query: 
+      datastore: MySQL
+      op: SELECT id, name FROM people
+
+  - op: cache
+    src: people
+    query:
+      command: SET
+      datastore: Redis cache
+      key: "{{ endpoint }}"
+
+  - op: evolve
+    inherit:
+    - name
+    - age
+    - created
+    mutate:
+      formal: "Sir {{ this.name }}"
+      lucky:
+        data: "{{ this.age - 13 }}"
+        type: integer
+      expires:
+        key: created
+        type: datetime
+        +delta:
+          weeks: 2
+      timestamp:
+        key: created
+        type: string
+
+   - op: accept
+     when:
+     - this.lucky != 13
+     - this.expires >= now
+
+  - op: regex
+    action: reject
+    keys:
+    - name
+    patterns:
+    - '^Myke'
+
+  - op: join
+    dest: telephone directory
+    join: ['id', 'people_id']
+    left inherit:
+    - id
+    - name
+    right inherit:
+    - telephone_number
+    mutate:
+      employee details: "{{ left.name }} {{ right.phonenumber }}-{{ right.extension  }} "
+    src: ['people', 'phone numbers']
+    type: outer
+
+  - op: group
+    dest: group by name
+    keys:
+    - name
+    mutate:
+      name: "{{ group.max('created', name) }}"
+      man years:
+        data: "{{ group.sum('age') }}"
+        type: integer
+      average:
+        data: "{{ group.avg('age') }}"
+        type: number
+
+  - op: evolve
+    inherit:
+    - name
+    - age
+    - created
+    - formal
+    - timestamp
+
+  - op: limit
+    limit: "{{ url.limit }}"
+
+  - op: pagify
+    amount: 10
+    pages: "{{ url.page }}"
+
+UPDATE:
+  - op: update
+
+DELETE:
+  - op: delete
