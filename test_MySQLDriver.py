@@ -69,6 +69,10 @@ class MySQLDriverTestCase(unittest.TestCase):
         return self.mysql.delete(query)
 
 
+    def test_init(self):
+        self.assertTrue(self.mysql)
+
+
     def test_create(self):
         self.assertNotEqual(self.create(), None)
 
