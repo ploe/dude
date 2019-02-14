@@ -1,0 +1,6 @@
+datastore: my_company
+driver: MySQL
+login:
+  host: 127.0.0.1
+  user: pont
+  passwd: "+zQx57?4$9"

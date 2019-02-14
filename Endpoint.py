@@ -5,7 +5,7 @@ from MySQLDriver import MySQLDriver as MySQL
 class Endpoint():
     def __init__(self, path):
         with open("endpoints/test_Endpoint.yml", 'r') as fh:
-            self.data = yaml.load( ''.join( fh.readlines() ) )
+            self.data = yaml.load( fh.read() )
 
     def get_pipeline(self, method):
         return self.data[method]
