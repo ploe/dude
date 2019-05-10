@@ -5,7 +5,7 @@ info: This endpoint is for saving and restoring users.
 
 CREATE:
   - op: create
-    _pause: test_create
+    breakpoint: test_create
     query:
       databank: MySQL
       op: INSERT INTO users (name, age, hobbies) VALUES (%s, %s, %s)

@@ -4,7 +4,7 @@ from Endpoint import Endpoint
 
 class EndpointTestCase(unittest.TestCase):
     def setUp(self):
-        self.endpoint = Endpoint('endpoints/test_Endpoint.yml')
+        self.endpoint = Endpoint('tests/endpoints/test_Endpoint.yml')
 
     def test_init(self):
         self.assertTrue(self.endpoint)

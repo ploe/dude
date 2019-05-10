@@ -4,7 +4,7 @@ from MySQLDriver import MySQLDriver as MySQL
 
 class Endpoint():
     def __init__(self, path):
-        with open("endpoints/test_Endpoint.yml", 'r') as fh:
+        with open(path, 'r') as fh:
             self.data = yaml.load( fh.read() )
 
     def get_pipeline(self, method):
@@ -16,11 +16,11 @@ class Endpoint():
         for op in pipeline:
             print(op['op'])
 
-    def run_pipeline_until(self, client, method, pause):
+    def run_pipeline_until(self, client, method, breakpoint):
         pipeline = self.get_pipeline(method)
 
         for op in pipeline:
-            if op['_pause'] == pause:
+            if op['breakpoint'] == breakpoint:
                 break
 
             print(op['op'])

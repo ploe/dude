@@ -13,13 +13,29 @@ CREATE:
       - "{{ url.age }}"
       - "{{ url.hobbies  }}"
 READ:
- query:
-    databank: MySQL
+  mandate:
+    json:
+      test: true
+    uri:
+      member:
+        type: "string"
+        search:
+        - "list"
+        - "of"
+        - "patterns"
+     url:
+       page:
+         type: "number"
+         allow:
+         - this > 0
+       
+  query:
+    bank: MySQL
     op: SELECT * FROM people
     params:
     - "{{ uri.member }}"
 
-  render:
+  transform:
   - op: mutate
     formal: "Sir {{ this.name }}"
     lucky:
@@ -34,7 +50,7 @@ READ:
       key: created
       type: string
 
-  - op: shave
+  - op: pop
     keys:
     - list
     - of
@@ -45,7 +61,7 @@ READ:
     - this.lucky != 13
     - this.expires >= now
 
-  - op: regex
+  - op: re.search
     action: reject
     keys:
     - name
