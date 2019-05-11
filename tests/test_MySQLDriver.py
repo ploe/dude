@@ -3,14 +3,10 @@ import unittest
 from datetime import datetime
 from time import sleep
 
-import docker
-
 from MySQLDriver import MySQLDriver
 
 class MySQLDriverTestCase(unittest.TestCase):
     def setUp(self):
-        self.container = self.docker_run_mysql()
-
         src = {
             'host': "127.0.0.1",
             'user': "root",
@@ -29,28 +25,9 @@ class MySQLDriverTestCase(unittest.TestCase):
                 );
         """)
 
-    def docker_run_mysql(self):
-        self.client = docker.from_env()
-        mysql = {
-            'auto_remove': True,
-            'detach': True,
-            'environment': {
-                'MYSQL_ROOT_PASSWORD': "+zQx57?4$9",
-            },
-            'image': 'mysql',
-            'ports': {'3306/tcp': '3306'},
-        }
-
-        container = self.client.containers.run(**mysql)
-        sleep(15)
-
-        return container
-
 
     def tearDown(self):
         self.mysql.cursor.execute("DROP DATABASE pont")
-        self.container.stop()
-        self.client.close()
 
 
     def dob(self):
