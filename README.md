@@ -119,6 +119,20 @@ Has two required components. **op** and **values**. This component is a **list**
 
 **op** can either be **accept** or **deny**. If the substring in values are found this value decides whether if the validation passes or not.
 
+```yaml
+READ:
+  mandate:
+    json:
+      member:
+        type: "str"
+        contains:
+        - op: 'accept'
+          values:
+          - "list"
+          - "of"
+          - "patterns"
+```
+
 ##### re.search
 
 Has two required components. **op** and **values**. This component is a **list** of **dicts**.
@@ -127,6 +141,19 @@ Has two required components. **op** and **values**. This component is a **list**
 
 **op** can either be **accept** or **deny**. If the substring in values are found this value decides whether if the validation passes or not.
 
+```yaml
+READ:
+  mandate:
+    json:
+      member:
+        type: "str"
+        re.search:
+        - op: 'deny'
+          values:
+          - ^hello
+          - world$
+```
+
 ##### deny
 
 For anything more sophisticated the **deny** component can be used.
@@ -134,6 +161,17 @@ For anything more sophisticated the **deny** component can be used.
 This is simply a list of expressions, and if they are true the validation will be denied. This may be a little slower, as it will require some string interpolation and jinja2 rendering.
 
 **this** will be passed to the renderer as the current **str**.
+
+```yaml
+READ:
+  mandate:
+    json:
+      member:
+        type: "str"
+        deny:
+        - len(this) < 1
+        - len(this) > 255
+```
 
 ### query
 
