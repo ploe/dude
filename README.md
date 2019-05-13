@@ -91,11 +91,15 @@ Below is an **example** of how I want the **mandate component** to look and feel
       member:
         type: "str"
         contains:
-        - "list"
-        - "of"
-        - "patterns"
+        - op: 'accept'
+          values:
+          - "list"
+          - "of"
+          - "patterns"
         re.search:
-        - ^Dude is cool
+        - op: 'deny'
+          values:
+          - ^Dude is cool
      url:
        page:
          type: "int"
@@ -103,6 +107,33 @@ Below is an **example** of how I want the **mandate component** to look and feel
          - this <= 0
 ```
 
+#### str
+
+If the type is set to **str** the value of what is in the parameter will be converted to a **str**. The components below are additional forms of validation.
+
+##### contains
+
+Has two required components. **op** and **values**. This component is a **list** of **dicts**.
+
+**values** is a list of substrings to check against the **str**.
+
+**op** can either be **accept** or **deny**. If the substring in values are found this value decides whether if the validation passes or not.
+
+##### re.search
+
+Has two required components. **op** and **values**. This component is a **list** of **dicts**.
+
+**values** is a list of **regular expressions** to check against the **str**. It is a wrapper around (https://docs.python.org/3/library/re.html).
+
+**op** can either be **accept** or **deny**. If the substring in values are found this value decides whether if the validation passes or not.
+
+##### deny
+
+For anything more sophisticated the **deny** component can be used.
+
+This is simply a list of expressions, and if they are true the validation will be denied. This may be a little slower, as it will require some string interpolation and jinja2 rendering.
+
+**this** will be passed to the renderer as the current **str**.
 
 ### query
 
