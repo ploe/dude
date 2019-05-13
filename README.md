@@ -4,7 +4,7 @@
 
 **THIS PROJECT IS CURRENTLY A WORK IN PROGRESS**
 
-Dude is a microservice middleware for taking HTTP/JSON requests and transforming them in to database requests.
+**dude** is a microservice middleware for taking HTTP/JSON requests and transforming them in to database requests.
 
 It is **not a database management system (DBMS)**.
 
@@ -62,7 +62,7 @@ tbd
 
 ## Method Components
 
-Dude is currently in development so these features aren't implemented. This is more of a written reference to guide the development.
+**dude** is currently in development so these features aren't implemented. This is more of a written reference to guide the development.
 
 Prototypes of how I want to use these are here in [sample.yml](./sample.yaml)
 
@@ -84,27 +84,16 @@ If the data can not be coerced in to the right format, **dude** should return an
 Below is an **example** of how I want the **mandate component** to look and feel.
 
 ```yaml
+READ:
   mandate:
+    cookies:
+      # components
+    headers:
+      # that
     json:
-      test:
-        type: bool
-      member:
-        type: "str"
-        contains:
-        - op: 'accept'
-          values:
-          - "list"
-          - "of"
-          - "patterns"
-        re.search:
-        - op: 'deny'
-          values:
-          - ^Dude is cool
-     url:
-       page:
-         type: "int"
-         deny:
-         - this <= 0
+      # specify
+    url:
+      # data format
 ```
 
 #### str
