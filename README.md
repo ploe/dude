@@ -28,6 +28,8 @@ Each of these methods should have a **query component** that relates to a **Data
 
 **READ** has a special component called **transform**, this is an array of **Operations (ops)** to **mutate** the **returned data**. This process is to ensure the data is in the desired format before returning it to the **sender**.
 
+<img src="./docs/dude%20-%20Inside%20an%20Endpoint%20-%20Mandate_Query_Transform.png?raw=true" width="500">
+
 ### Dynamic?
 
 The **endpoints** are **data-driven**. In theory these files could be **hot-reloaded** without having to rebuild and redeploy the code.
