@@ -6,7 +6,7 @@
 
 Dude is a microservice middleware for taking HTTP/JSON requests and transforming them in to database requests.
 
-It is **not a database management system (DBMS)**
+It is **not a database management system (DBMS)**.
 
 Each **HTTP Endpoint** can have a **CREATE**, **READ**, **UPDATE** and **DELETE** method associated with it. These are defined in an **endpoint file** written in **YAML**.
 
@@ -22,11 +22,15 @@ The **components** for **mandate**  are currently planned to be **cookies**, **h
 
 ### query component
 
-Each of these methods should have a **query component** that relates to a **Databank (bank)** the user wishes to amend. So for example in the case of **MySQL** the user would specify the **INSERT**, **SELECT**, **UPDATE** and **DELETE** queries, and render their **params** in the in the **params component**.
+Each of these methods should have a **query component** that relates to a **Databank (bank)** the user wishes to amend.
+
+So for example in the case of **MySQL** the user would specify the **INSERT**, **SELECT**, **UPDATE** and **DELETE** queries, and render their **params** in the in the **params component**.
 
 ### transform component
 
-**READ** has a special component called **transform**, this is an array of **Operations (ops)** to **mutate** the **returned data**. This process is to ensure the data is in the desired format before returning it to the **sender**.
+**READ** has a special component called **transform**, this is an array of **Operations (ops)** to **mutate** the **returned data**.
+
+This process is to ensure the data is in the desired format before returning it to the **sender**.
 
 <img src="./docs/dude%20-%20Inside%20an%20Endpoint%20-%20Mandate_Query_Transform.png?raw=true" width="500">
 
@@ -43,6 +47,99 @@ Each **endpoint** is defined in the exact same way. All follow the same pattern 
 Each **dude** in theory could sit in front of **many banks**. These could be different database types such as **MySQL**, **MongoDB** or even something like **Solr** or **Elasticsearch**.
 
 By adding **Database Drivers (drivers)** to **dude** these resources could be changed **transparently** without the application using **dude** knowing the nitty gritty details.
+
+## Endpoint Components
+
+### CREATE
+
+### READ
+
+### UPDATE
+
+### DELETE
+
+tbd
+
+## Method Components
+
+Dude is currently in development so these features aren't implemented. This is more of a written reference to guide the development.
+
+Prototypes of how I want to use these are here in [sample.yml](./sample.yaml)
+
+### mandate
+
+**In Development**
+
+Composed of these sub components, which are pulled from the HTTP request:
+
+* cookies
+* headers
+* json
+* url
+
+**mandate** will be used to **define the type** and **import variables** into the **query component**. If it isn't in the mandate it will not be passed on. This **enforces** some degree of **validation** on **every variable**.
+
+If the data can not be coerced in to the right format, **dude** should return an error and highlight the issue to the caller.
+
+Below is an **example** of how I want the **mandate component** to look and feel.
+
+```yaml
+  mandate:
+    json:
+      test:
+        type: bool
+      member:
+        type: "str"
+        contains:
+        - "list"
+        - "of"
+        - "patterns"
+        re.search:
+        - ^Dude is cool
+     url:
+       page:
+         type: "int"
+         deny:
+         - this <= 0
+```
+
+
+### query
+
+**In Development**
+
+Current **drivers** are:
+
+* MySQL
+
+#### MySQL
+
+Current MySQL endpoint query component:
+
+```yaml
+    query:
+      databank: MySQL
+      op: INSERT INTO users (name, age, hobbies) VALUES (%s, %s, %s)
+      params:
+      - "{{ url.name }}"
+      - "{{ url.age }}"
+      - "{{ url.hobbies  }}"
+```
+
+Example MySQL Databank:
+
+```yaml
+bank: my_company
+driver: MySQL
+login:
+  host: 127.0.0.1
+  user: root
+  passwd: "+zQx57?4$9"
+```
+
+### transform
+
+**In Development**
 
 ## Unit Tests
 
