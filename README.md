@@ -10,9 +10,21 @@ It is **not a database management system (DBMS)**
 
 Each **HTTP Endpoint** can have a **CREATE**, **READ**, **UPDATE** and **DELETE** method associated with it. These are defined in an **endpoint file** written in **YAML**.
 
-Each of these methods may have a **mandate component**. This is **required** if your query requires parameters. This step ensures that the **HTTP/JSON data** is the **correct type** before passing it over to the **query**. The **components** for each param type are currently **cookies**, **headers**, **json** and **url**.
+### mandate component
+
+Each of these methods may have a **mandate component**.
+
+This is **required** if your query requires parameters.
+
+This step ensures that the **HTTP/JSON data** is the **correct type** before passing it over to the **query**.
+
+The **components** for **mandate**  are currently planned to be **cookies**, **headers**, **json** and **url**.
+
+### query component
 
 Each of these methods should have a **query component** that relates to a **Databank (bank)** the user wishes to amend. So for example in the case of **MySQL** the user would specify the **INSERT**, **SELECT**, **UPDATE** and **DELETE** queries, and render their **params** in the in the **params component**.
+
+### transform component
 
 **READ** has a special component called **transform**, this is an array of **Operations (ops)** to **mutate** the **returned data**. This process is to ensure the data is in the desired format before returning it to the **sender**.
 
