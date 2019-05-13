@@ -2,10 +2,26 @@ import yaml
 
 from MySQLDriver import MySQLDriver as MySQL
 
+class Mandator():
+    def __init__(self, component):
+        self.component = component
+        self.type_tag = self.get_type_tag()
+        self.type = getattr(self, self.type_tag)
+
+    def get_type_tag(self):
+        return "type_{}".format(component['type'])
+
+    def type_str(self, value):
+        return str(value)
+
 class Endpoint():
     def __init__(self, path):
         with open(path, 'r') as fh:
             self.data = yaml.load( fh.read(), Loader=yaml.Loader )
+
+    def mandate(self, value, component):
+        mandator = Mandator(component)
+        return mandator.type(value)
 
     def get_pipeline(self, method):
         return self.data[method]

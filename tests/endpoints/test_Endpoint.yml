@@ -1,4 +1,3 @@
----
 enabled: true
 endpoint: users
 info: This endpoint is for saving and restoring users.

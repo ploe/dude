@@ -13,3 +13,9 @@ class EndpointTestCase(unittest.TestCase):
         client = {}
         output = self.endpoint.run_pipeline_until(client, "CREATE", "test_create")
 
+    def test_mandate(self):
+        component = { 'type': 'str' }
+        self.assertEqual(type(self.endpoint.mandate("hello, world", component)), str)
+        self.assertEqual(type(self.endpoint.mandate(123, component)), str)
+        self.assertEqual(type(self.endpoint.mandate(True, component)), str)
+

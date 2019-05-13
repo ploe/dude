@@ -1,4 +1,4 @@
-datastore: my_company
+bank: my_company
 driver: MySQL
 login:
   host: 127.0.0.1
