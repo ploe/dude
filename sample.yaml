@@ -1,4 +1,5 @@
 ---
+encoding: 'utf-8'
 enabled: true
 endpoint: people
 info: This endpoint is for saving and restoring people.
@@ -19,10 +20,11 @@ READ:
     uri:
       member:
         type: "string"
-        search:
+        contains:
         - "list"
         - "of"
         - "patterns"
+        search:
      url:
        page:
          type: "number"
