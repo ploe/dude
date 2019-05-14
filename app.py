@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 import yaml
 
 from flask import abort, Flask, g, jsonify, request
