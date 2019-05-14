@@ -1,18 +1,9 @@
+import re
 import yaml
 
+import Mandators
+
 from MySQLDriver import MySQLDriver as MySQL
-
-class Mandator():
-    def __init__(self, component):
-        self.component = component
-        self.type_tag = self.get_type_tag()
-        self.type = getattr(self, self.type_tag)
-
-    def get_type_tag(self):
-        return "type_{}".format(component['type'])
-
-    def type_str(self, value):
-        return str(value)
 
 class Endpoint():
     def __init__(self, path):
@@ -20,8 +11,12 @@ class Endpoint():
             self.data = yaml.load( fh.read(), Loader=yaml.Loader )
 
     def mandate(self, value, component):
-        mandator = Mandator(component)
-        return mandator.type(value)
+        tag = "{}Mandator".format(component['type'])
+
+        new = getattr(Mandators, tag)
+        mandator = new(component)
+
+        return mandator.mandate(value)
 
     def get_pipeline(self, method):
         return self.data[method]

@@ -122,7 +122,7 @@ READ:
           - "patterns"
 ```
 
-##### re.search
+##### re
 
 Has two required components. **op** and **values**. This component is a **list** of **dicts**.
 
@@ -136,7 +136,7 @@ READ:
     json:
       member:
         type: "str"
-        re.search:
+        re:
         - op: 'deny'
           values:
           - ^hello
