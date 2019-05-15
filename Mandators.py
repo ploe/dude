@@ -2,6 +2,8 @@
 
 import re
 
+from jinja2 import Template
+
 class Mandator():
     def __init__(self, component):
         self.component = component
@@ -16,6 +18,7 @@ class strMandator(Mandator):
         for method in [
                 self.contains,
                 self.re,
+                self.deny,
         ]:
             if not method(value):
                 return None
@@ -27,6 +30,18 @@ class strMandator(Mandator):
 
         for substr in contains:
             if not substr in value: return False
+
+        return True
+
+    def deny(self, value):
+        expressions = self.component.get('deny', [])
+
+        for expr in expressions:
+            logic = '{{% if {} %}}True{{% else %}}False{{% endif %}}'.format(expr)
+
+            template = Template(logic)
+            if template.render(this=value) == "True":
+                return False
 
         return True
 

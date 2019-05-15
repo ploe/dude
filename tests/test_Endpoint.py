@@ -27,12 +27,12 @@ class EndpointTestCase(unittest.TestCase):
             'contains': [
                 "hello",
                 "world",
-                "myke"
+                "spam"
             ],
         }
 
         self.assertFalse(self.endpoint.mandate("hello, world", component))
-        self.assertTrue(self.endpoint.mandate("myke says hello, world", component))
+        self.assertTrue(self.endpoint.mandate("spam says hello, world", component))
 
     def test_mandate_str_regex(self):
         component = {
@@ -40,12 +40,29 @@ class EndpointTestCase(unittest.TestCase):
             're': [
                 "^hello",
                 "world$",
-                "myke"
+                "spam"
             ],
         }
 
         self.assertFalse( self.endpoint.mandate("hello, world", component) )
-        self.assertTrue( self.endpoint.mandate("hello myke this is the world", component ) )
+        self.assertTrue( self.endpoint.mandate("hello spam this is the world", component ) )
 
+    def test_mandate_str_deny(self):
+        component = {
+            'type': 'str',
+            'deny': [
+                "'hello' in this",
+                "this | length <= 5"
+            ],
+        }
 
+        self.assertFalse( self.endpoint.mandate("world", component) )
+        self.assertFalse( self.endpoint.mandate("hello, world", component) )
+        self.assertTrue( self.endpoint.mandate("spam eggs spam", component) )
 
+    def test_mandate_str_validate(self):
+        component = {
+            'type': 'str'
+        }
+
+        self.assertTrue( self.endpoint.mandate("spam", component) )
