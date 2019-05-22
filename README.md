@@ -124,7 +124,7 @@ READ:
 
 ##### re
 
-Has two required components. **op** and **values**. This component is a **list** of **dicts**.
+Has two required components. **op** and **values**. This component can either be **a dict** or a **list of dicts**.
 
 **values** is a list of **regular expressions** to check against the **str**. It is a wrapper around (https://docs.python.org/3/library/re.html).
 

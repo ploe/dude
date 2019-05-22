@@ -24,11 +24,14 @@ class EndpointTestCase(unittest.TestCase):
     def test_mandate_str_contains(self):
         component = {
             'type': 'str',
-            'contains': [
-                "hello",
-                "world",
-                "spam"
-            ],
+            'contains': {
+                'op': 'accept',
+                'values': [
+                    'hello',
+                    'world',
+                    'spam'
+                ]
+            },
         }
 
         self.assertFalse(self.endpoint.mandate("hello, world", component))
@@ -60,9 +63,13 @@ class EndpointTestCase(unittest.TestCase):
         self.assertFalse( self.endpoint.mandate("hello, world", component) )
         self.assertTrue( self.endpoint.mandate("spam eggs spam", component) )
 
-    def test_mandate_str_validate(self):
+    def test_mandate_str_validate_contains(self):
         component = {
-            'type': 'str'
+            'type': 'str',
+            'contains': {
+                'op': 'accept',
+                'values': 'spam',
+            }
         }
 
-        self.assertTrue( self.endpoint.mandate("spam", component) )
+        self.assertTrue( self.endpoint.validate_component(component) )

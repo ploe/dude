@@ -1,11 +1,10 @@
 #! /usr/bin/env python3
 
+import importlib
 import unittest
 
 from datetime import datetime
 from time import sleep
-
-from MySQLDriver import MySQLDriver
 
 class MySQLDriverTestCase(unittest.TestCase):
     def setUp(self):
@@ -14,7 +13,10 @@ class MySQLDriverTestCase(unittest.TestCase):
             'user': "root",
             'passwd': "+zQx57?4$9",
         }
-        
+
+        module = importlib.import_module("drivers.mysql")
+        MySQLDriver = getattr(module, "MySQLDriver")
+
         self.mysql = MySQLDriver(src)
         self.mysql.cursor.execute("""
                 CREATE DATABASE pont;
