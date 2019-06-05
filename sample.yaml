@@ -1,4 +1,3 @@
----
 encoding: 'utf-8'
 enabled: true
 endpoint: people
@@ -14,20 +13,22 @@ CREATE:
       - "{{ url.age }}"
       - "{{ url.hobbies  }}"
 READ:
-  mandate:
+  import:
     json:
       test: true
-    uri:
       member:
-        type: "string"
+        type: "str"
         contains:
         - "list"
         - "of"
         - "patterns"
         search:
+        - '^list'
+        - 'of'
+        - 'patterns'
      url:
        page:
-         type: "number"
+         type: "int"
          allow:
          - this > 0
        
@@ -38,56 +39,38 @@ READ:
     - "{{ uri.member }}"
 
   transform:
-  - op: mutate
-    formal: "Sir {{ this.name }}"
-    lucky:
-      data: "{{ this.age - 13 }}"
-      type: integer
-    expires:
-      key: created
-      type: datetime
-      +delta:
-        weeks: 2
-    timestamp:
-      key: created
-      type: string
-
-  - op: pop
-    keys:
-    - list
-    - of
-    - keys
-
-  - op: accept
-    when:
-    - this.lucky != 13
-    - this.expires >= now
-
-  - op: re.search
-    action: reject
-    keys:
-    - name
-    patterns:
-    - '^Myke'
-
-  - op: group
-    keys:
-    - name
-    mutate:
-      name: "{{ group.max('created', name) }}"
-      man years:
-        data: "{{ group.sum('age') }}"
+    data:
+      formal: "Sir {{ this.name }}"
+      lucky:
+        data: "{{ this.age - 13 }}"
         type: integer
-      average:
-        data: "{{ group.avg('age') }}"
-        type: number
+        publish: false
+      expires:
+        key: created
+        type: datetime
+        +delta:
+          weeks: 2
+      timestamp:
+        key: created
+        type: string
+    group:
+      keys:
+      - name
+      data:
+        name: "{{ group.max('created', name) }}"
+        man years:
+          data: "{{ group.sum('age') }}"
+          type: integer
+        average:
+          data: "{{ group.avg('age') }}"
+          type: number
+    order:
+    - { key: 'name', order: 'asc' }
+    - { key: 'age' order: 'desc' }
+    paginate:
+      limit: "{{ url.limit }}"
+      page: "{{ url.page }}"
 
-  - op: limit
-    limit: "{{ url.limit }}"
-
-  - op: pagify
-    amount: 10
-    pages: "{{ url.page }}"
 
 UPDATE:
   - op: update

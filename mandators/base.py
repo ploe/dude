@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
 
-class Mandator():
+class Importer():
     def __init__(self, component):
         self.component = component

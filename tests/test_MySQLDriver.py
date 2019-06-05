@@ -110,5 +110,3 @@ class MySQLDriverTestCase(unittest.TestCase):
         rowid = self.create()
 
         self.assertTrue(self.delete(rowid))
-
-

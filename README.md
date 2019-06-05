@@ -10,15 +10,15 @@ It is **not a database management system (DBMS)**.
 
 Each **HTTP Endpoint** can have a **CREATE**, **READ**, **UPDATE** and **DELETE** method associated with it. These are defined in an **endpoint file** written in **YAML**.
 
-### mandate component
+### import component
 
-Each of these methods may have a **mandate component**.
+Each of these methods may have a **import component**.
 
 This is **required** if your query requires parameters.
 
 This step ensures that the **HTTP/JSON data** is the **correct type** before passing it over to the **query**.
 
-The **components** for **mandate**  are currently planned to be **cookies**, **headers**, **json** and **url**.
+The **components** for **import**  are currently planned to be **cookies**, **headers**, **json** and **url**.
 
 ### query component
 
@@ -32,7 +32,7 @@ So for example in the case of **MySQL** the user would specify the **INSERT**, *
 
 This process is to ensure the data is in the desired format before returning it to the **sender**.
 
-<img src="./docs/dude%20-%20Inside%20an%20Endpoint%20-%20Mandate_Query_Transform.png?raw=true" width="500">
+<img src="./docs/dude%20-%20Inside%20an%20Endpoint%20-%20Import_Query_Transform.png?raw=true" width="500">
 
 ### Dynamic?
 
@@ -66,7 +66,7 @@ tbd
 
 Prototypes of how I want to use these are here in [sample.yml](./sample.yaml)
 
-### mandate
+### import
 
 **In Development**
 
@@ -77,15 +77,15 @@ Composed of these sub components, which are pulled from the HTTP request:
 * json
 * url
 
-**mandate** will be used to **define the type** and **import variables** into the **query component**. If it isn't in the mandate it will not be passed on. This **enforces** some degree of **validation** on **every variable**.
+**import** will be used to **define the type** and **import variables** into the **query component**. If it isn't in the import it will not be passed on. This **enforces** some degree of **validation** on **every variable**.
 
 If the data can not be coerced in to the right format, **dude** should return an error and highlight the issue to the caller.
 
-Below is an **example** of how I want the **mandate component** to look and feel.
+Below is an **example** of how I want the **import component** to look and feel.
 
 ```yaml
 READ:
-  mandate:
+  import:
     cookies:
       # components
     headers:
@@ -110,7 +110,7 @@ Has two required components. **op** and **values**. This component is a **list**
 
 ```yaml
 READ:
-  mandate:
+  import:
     json:
       member:
         type: "str"
@@ -132,7 +132,7 @@ Has two required components. **op** and **values**. This component can either be
 
 ```yaml
 READ:
-  mandate:
+  import:
     json:
       member:
         type: "str"
@@ -153,7 +153,7 @@ This is simply a list of expressions, and if they are true the validation will b
 
 ```yaml
 READ:
-  mandate:
+  import:
     json:
       member:
         type: "str"

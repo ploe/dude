@@ -10,23 +10,23 @@ class Endpoint():
         with open(path, 'r') as fh:
             self.data = yaml.load( fh.read(), Loader=yaml.Loader )
 
-    def new_mandator(self, component):
-        tag = "mandators.{}".format(component['type'])
+    def new_importer(self, component):
+        tag = "importers.{}".format(component['type'])
 
         module = import_module(tag)
-        new = getattr(module, "Mandator")
+        new = getattr(module, "Importer")
 
         return new(component)
 
-    def mandate(self, value, component):
-        mandator = self.new_mandator(component)
+    def import(self, value, component):
+        importer = self.new_importer(component)
 
-        return mandator.mandate(value)
+        return importer.import(value)
 
     def validate_component(self, component):
-        mandator = self.new_mandator(component)
+        importer = self.new_importer(component)
 
-        return mandator.validate()
+        return importer.validate()
 
     def get_pipeline(self, method):
         return self.data[method]

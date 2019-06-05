@@ -4,10 +4,10 @@ import re
 
 from jinja2 import Template
 
-import mandators.base
+import importers.base
 
-class Mandator(mandators.base.Mandator):
-    def mandate(self, value):
+class Importer(importers.base.Importer):
+    def import(self, value):
         try:
             value = str(value)
         except:
