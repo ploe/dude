@@ -1,7 +1,0 @@
----
-credentials:
-  host: 127.0.0.1
-  user: pont
-  passwd: "+zQx57?4$9"
-datastore: my_company
-driver: MySQL
