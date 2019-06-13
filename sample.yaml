@@ -4,43 +4,39 @@ endpoint: people
 info: This endpoint is for saving and restoring people.
 
 CREATE:
-  - op: create
-    query:
-      databank: MySQL
-      op: INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)
-      params:
-      - "{{ url.name }}"
-      - "{{ url.age }}"
-      - "{{ url.hobbies  }}"
+  Driver:
+    bank: MySQL
+    op: INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)
+    params:
+    - "{{ url.name }}"
+    - "{{ url.age }}"
+    - "{{ url.hobbies  }}"
+
 READ:
-  import:
+  Imports:
     json:
       test: true
       member:
         type: "str"
-        contains:
-        - "list"
-        - "of"
-        - "patterns"
-        search:
-        - '^list'
-        - 'of'
-        - 'patterns'
+        reject:
+        - this.contains("list")
+        - this == 'of'
+        - "patterns" in this
      url:
        page:
          type: "int"
-         allow:
+         reject:
          - this > 0
        
-  query:
+  Driver:
     bank: MySQL
     op: SELECT * FROM people
     params:
     - "{{ uri.member }}"
 
-  transform:
+  Transforms:
     data:
-      formal: "Sir {{ this.name }}"
+    - formal: "Sir {{ this.name }}"
       lucky:
         data: "{{ this.age - 13 }}"
         type: integer
@@ -57,7 +53,7 @@ READ:
       keys:
       - name
       data:
-        name: "{{ group.max('created', name) }}"
+      - name: "{{ group.max('created', name) }}"
         man years:
           data: "{{ group.sum('age') }}"
           type: integer
@@ -71,9 +67,3 @@ READ:
       limit: "{{ url.limit }}"
       page: "{{ url.page }}"
 
-
-UPDATE:
-  - op: update
-
-DELETE:
-  - op: delete

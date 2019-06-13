@@ -18,7 +18,7 @@ class Endpoint():
 
         return new(component)
 
-    def import(self, value, component):
+    def importer(self, value, component):
         importer = self.new_importer(component)
 
         return importer.import(value)

@@ -1,91 +1,117 @@
-# Dynamic and Uniform Databank Engine (dude)
-
-## What is dude?
+# What is dude?
 
 **THIS PROJECT IS CURRENTLY A WORK IN PROGRESS**
 
-**dude** is a microservice middleware for taking HTTP/JSON requests and transforming them in to database requests.
+**dude** (**Dynamic and Uniform Databank Engine**) is a microservice middleware for taking HTTP/JSON requests and renders them in to database queries.
+
+It then can **transform** the returned data and give it back to the caller.
 
 It is **not a database management system (DBMS)**.
 
-Each **HTTP Endpoint** can have a **CREATE**, **READ**, **UPDATE** and **DELETE** method associated with it. These are defined in an **endpoint file** written in **YAML**.
+Each **HTTP Endpoint** can have a **CREATE**, **READ**, **UPDATE** and **DELETE** method associated with it.
 
-### import component
 
-Each of these methods may have a **import component**.
+<img src="./docs/Dude%20-%20Top%20Level.png?raw=true" width="500">
 
-This is **required** if your query requires parameters.
+## Dynamic?
 
-This step ensures that the **HTTP/JSON data** is the **correct type** before passing it over to the **query**.
+The **endpoints** are **data driven**.
 
-The **components** for **import**  are currently planned to be **cookies**, **headers**, **json** and **url**.
+In theory these **endpoints** could be **hot reloaded** without having to rebuild and redeploy the code.
 
-### query component
+## Uniform?
 
-Each of these methods should have a **query component** that relates to a **Databank (bank)** the user wishes to amend.
+Each **endpoint** is defined in the exact same way.
 
-So for example in the case of **MySQL** the user would specify the **INSERT**, **SELECT**, **UPDATE** and **DELETE** queries, and render their **params** in the in the **params component**.
+All follow the same pattern and in theory can all use the same code/classes.
 
-### transform component
+This has the side-effect of making the microservice compact.
 
-**READ** has a special component called **transform**, this is an array of **Operations (ops)** to **mutate** the **returned data**.
-
-This process is to ensure the data is in the desired format before returning it to the **sender**.
-
-<img src="./docs/dude%20-%20Inside%20an%20Endpoint%20-%20Import_Query_Transform.png?raw=true" width="500">
-
-### Dynamic?
-
-The **endpoints** are **data-driven**. In theory these files could be **hot-reloaded** without having to rebuild and redeploy the code.
-
-### Uniform?
-
-Each **endpoint** is defined in the exact same way. All follow the same pattern and in theory can all use the same code/classes. This has the side-effect of making the microservice compact.
-
-### Databank Engine?
+## Databank Engine?
 
 Each **dude** in theory could sit in front of **many banks**. These could be different database types such as **MySQL**, **MongoDB** or even something like **Solr** or **Elasticsearch**.
 
 By adding **Database Drivers (drivers)** to **dude** these resources could be changed **transparently** without the application using **dude** knowing the nitty gritty details.
 
-## Endpoint Components
+# CRUD
 
-### CREATE
+The HTTP/dude methods are:
 
-### READ
+* POST => CREATE
+* GET => READ
+* UPDATE => PATCH
+* DELETE => DELETE
 
-### UPDATE
+## CREATE
 
-### DELETE
+Posted JSON either be an **object** or **list of objects**.
 
-tbd
+They query will be executed on the server for every **object**.
 
-## Method Components
+The caller should be notified on the success of each object being created. (This should be expanded)
 
-**dude** is currently in development so these features aren't implemented. This is more of a written reference to guide the development.
+## READ
 
-Prototypes of how I want to use these are here in [sample.yml](./sample.yaml)
+No JSON.
 
-### import
+Query will be executed once.
 
-**In Development**
+**List of objects** returned.
 
-Composed of these sub components, which are pulled from the HTTP request:
+**Transforms** are run on the **list of objects**.
 
-* cookies
-* headers
-* json
-* url
+## UPDATE
 
-**import** will be used to **define the type** and **import variables** into the **query component**. If it isn't in the import it will not be passed on. This **enforces** some degree of **validation** on **every variable**.
+Posted JSON either be an **object** or **list of objects**.
 
-If the data can not be coerced in to the right format, **dude** should return an error and highlight the issue to the caller.
+They query will be executed on the server for every **object**.
 
-Below is an **example** of how I want the **import component** to look and feel.
+The caller should be notified on the success of each object being updated.
+
+## DELETE
+
+No JSON.
+
+The caller should be notified on the success of DELETE.
+
+# Databanks
+
+# Endpoint
+
+Every **endpoint** implements a **pipeline**.
+
+Each **endpoint** can be thought of as a **HTTP URI**, that runs a query for each object in the **HTTP Request**.
+
+# The Pipeline
+
+The pipeline is made up of three parts (and the methods which use them):
+
+* Imports (CREATE, READ, UPDATE, DELETE)
+* Driver (CREATE, READ, UPDATE, DELETE)
+* Transforms (READ)
+
+<img src="./docs/Dude%20-%20Pipeline%20Components.png?raw=true" width="500">
+
+# Importers
+
+The **Importers** are classes that ensure the HTTP Requests to the Endpoint are in the right format. If they aren't the process should return an error code.
+
+Only values that are imported are can be used by the **Drivers** and **Transformers**.
+
+## Sources
+
+The following sources are derived from the HTTP Request.
+
+* cookies (CREATE, READ, UPDATE, DELETE)
+* headers (CREATE, READ, UPDATE, DELETE)
+* json (CREATE, UPDATE)
+* url (CREATE, READ, UPDATE, DELETE)
+
+The import should look and feel sorta like this:
 
 ```yaml
 READ:
-  import:
+  Imports:
     cookies:
       # components
     headers:
@@ -96,116 +122,188 @@ READ:
       # data format
 ```
 
-#### str
+## Types
 
-If the type is set to **str** the value of what is in the parameter will be converted to a **str**. The components below are additional forms of validation.
+The following types will be supported in the first build of the app:
 
-##### contains
+* str
+* int
+* float
+* bool
 
-Has two required components. **op** and **values**. This component is a **list** of **dicts**.
+In the interest of keeping this first build simple these types will have no further validation. Once the bare bones are in these classes can be refactored to add the validation as desired.
 
-**values** is a list of substrings to check against the **str**.
+In the future I'd want to add primitives for **date**, **datetime** and **time**.
 
-**op** can either be **accept** or **deny**. If the substring in values are found this value decides whether if the validation passes or not.
+# Drivers
 
-```yaml
-READ:
-  import:
-    json:
-      member:
-        type: "str"
-        contains:
-        - op: 'accept'
-          values:
-          - "list"
-          - "of"
-          - "patterns"
-```
+**Drivers** are the classes that interact with the database on behalf of the **endpoint**. They should implement the basic **CRUD** (**CREATE**, **READ**, **UPDATE** and **DELETE**) methods.
 
-##### re
+The endpoint should just be able to handover the **query/parameters** to the **driver** when calling the appropriate method.
 
-Has two required components. **op** and **values**. This component can either be **a dict** or a **list of dicts**.
+* mysql
+* mongodb
 
-**values** is a list of **regular expressions** to check against the **str**. It is a wrapper around (https://docs.python.org/3/library/re.html).
+# Transformers
 
-**op** can either be **accept** or **deny**. If the substring in values are found this value decides whether if the validation passes or not.
+**Transformers** transform the output data in to the desired format.
+
+## data
+
+**data** can be an **array** or **object**. If it's an **object** it will be treat an **array** with one element.
+
+**data** iterates over the **driver's** output and transforms each object in to the desired format. Each **object** in the **array** is one pass of transformations.
 
 ```yaml
 READ:
-  import:
-    json:
-      member:
-        type: "str"
-        re:
-        - op: 'deny'
-          values:
-          - ^hello
-          - world$
+  Transforms:
+    data:
+    - formal: "Sir {{ this.name }}"
+      lucky:
+        publish: false
+        reject:
+        - value == 13
+        render: "{{ this.age - 13 }}"
+        type: int
+      name:
+        inherit: 'name'
+        type: str
+      alive:
+        type: bool
 ```
 
-##### deny
+### key: value
 
-For anything more sophisticated the **deny** component can be used.
+If the **type** of **value** is a **str**, it is just rendered using **jinja2**.
 
-This is simply a list of expressions, and if they are true the validation will be denied. This may be a little slower, as it will require some string interpolation and jinja2 rendering.
+If the **type** is a **boolean** set to **true** it **inherits** the **value** from the same **key**.
 
-**this** will be passed to the renderer as the current **str**.
+### inherit
+
+The **key** of the **value** to lift from the previous version of the object.
+
+### publish
+
+**boolean**; Assumed to be **true**, if explicitly set to **false** the key/value pair won't be passed to the HTTP response.
+
+### reject
+
+Is a **list** of **Python expressions**, that are executed sequentially.
+
+If any of the expressions are **true**, then the **data transform** skips for this object and skips to the next one.
+
+The variables passed to reject are:
+
+* `this` - a dict of the object currently being transformed
+* `key` - the current key of the value being rendered
+* `value` - the value after it has been rendered and its type coerced to the right one.
+
+This will be an **eval** under the covers, which doesn't feel very safe. In future iterations of the program **Importer** methods will be used to check the data is in the right shape.
+
+This is currently as such to simplify the proof of concept version.
+
+### render:
+
+A **jinja2** string to render the value.
+
+### type:
+
+The **type** the value should be.
+
+This is currently locked to the simple types that are representable in JSON (i.e. not lists or objects) - but down the line in further iterations more complex types should be definable - including **date**, **datetime**, **time** or anything else that takes our fancy.
+
+## group
+
+**group** takes a list of **keys** and groups the **objects** them.
+
+**group**'s has a **data** component that is identical to the **data transformer** apart from there are some special purpose **group object** instead of **this** which exposes some methods for getting data from the group.
+
 
 ```yaml
 READ:
-  import:
-    json:
-      member:
-        type: "str"
-        deny:
-        - len(this) < 1
-        - len(this) > 255
+  Transforms:
+    group:
+      keys:
+      - name
+      data:
+      - name: "{{ group.max('created', name) }}"
+        man years:
+          render: "{{ group.sum('age') }}"
+          type: int
+        average:
+          render: "{{ group.mean('age') }}"
+          type: float
 ```
 
-### query
+### group.count()
 
-**In Development**
+Returns the number of instances in the **group**.
 
-Current **drivers** are:
+### group.distinct(key)
 
-* MySQL
+Returns the number of **distinct** instances of **object[key]** in the **group**.
 
-#### MySQL
+### group.max(src, value)
+### group.mean(src, value)
+### group.min(src, value)
+### group.mode(src, value)
+### group.median(src, value)
 
-Current MySQL endpoint query component:
+These functions all behave in the same way. It checks all instances of **object[src]** in the **group**.
+
+Returns the **object** whose **src** is the **max**|**mean**|**min**|**mode**|**median**.
+
+If **value** is not set it returns **object[src]**.
+
+If **value** is set it returns the corresponding **object[value]**.
+
+### group.sum(key)
+
+Returns the **total** of all instances in the **group** of **object[key]** added together.
+
+## order
+
+**order** arranges the instances by **key** by the **asc|desc** in **order**.
 
 ```yaml
-    query:
-      databank: MySQL
-      op: INSERT INTO users (name, age, hobbies) VALUES (%s, %s, %s)
-      params:
-      - "{{ url.name }}"
-      - "{{ url.age }}"
-      - "{{ url.hobbies  }}"
+    order:
+    - { key: 'name', order: 'asc' }
+    - { key: 'age' order: 'desc' }
 ```
 
-Example MySQL Databank:
+## paginate
+
+**paginate** can limit the output.
 
 ```yaml
-bank: my_company
-driver: MySQL
-login:
-  host: 127.0.0.1
-  user: root
-  passwd: "+zQx57?4$9"
+    paginate:
+      limit: "{{ url.limit }}"
+      page: "{{ url.page }}"
 ```
 
-### transform
+### limit
 
-**In Development**
+**jinja2** rendered value that's coerced to an **int**.
 
-## Unit Tests
+Limits the instances returned to this int.
 
-There are unittests in the tests directory. To setup a testing environment you'll require **docker** and **docker-compose**.
+### page
 
-Once in place you can use `docker-compose up -d` in the tests directory to bring up the environment.
+**jinja2** rendered value that's coerced to an **int**.
 
-## License
+# Vagrant
+
+A version of the test environment should run in Vagrant.
+
+# Docker Compose
+
+The test environment should be orchestrated with Docker Compose.
+
+# Unit Tests
+
+At the very minimum every **Importer**, **Driver** and **Transformer** should be a class and have a unit test around it.
+
+# License
 
 ```
 Copyright (c) 2019, Myke Atkinson
