@@ -19,18 +19,18 @@ class Driver:
 
             return self.cursor.fetchall()
 
-    def create(self, query):
+    def create(self, imported, query):
         return self.write(query)
 
     def update(self, query):
         return self.write(query)
 
     def write(self, query):
-        try:
-            self.cursor.execute(query['op'], query['params'])
-            self.db.commit()
-        except:
-            return None
+        op = query['op']
+        for params in query['params']:
+            self.cursor.execute(op, params)
+        
+        self.db.commit()
 
         return self.cursor.lastrowid
 

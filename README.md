@@ -137,12 +137,14 @@ In the future I'd want to add primitives for **date**, **datetime** and **time**
 
 # Drivers
 
-**Drivers** are the classes that interact with the database on behalf of the **endpoint**. They should implement the basic **CRUD** (**CREATE**, **READ**, **UPDATE** and **DELETE**) methods.
+**Drivers** are the classes that interact with the database on behalf of the **endpoint**. They should implement the **CRUD** (**CREATE**, **READ**, **UPDATE** and **DELETE**) methods.
 
 The endpoint should just be able to handover the **query/parameters** to the **driver** when calling the appropriate method.
 
 * mysql
 * mongodb
+
+A **Driver method** should get the **imported** data, they **Driver component** from the **endpoint**.
 
 # Transformers
 
