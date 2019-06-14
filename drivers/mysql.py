@@ -2,7 +2,7 @@
 
 import MySQLdb
 
-class MySQLDriver:
+class Driver:
     def __init__(self, src):
         self.db = MySQLdb.connect(**src)
         self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
