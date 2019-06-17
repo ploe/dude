@@ -150,7 +150,7 @@ It knows how to take the **imported data** and how to **render** (using jinja2) 
 
 It then uses the **connection** and the **queries** to **exchange** with the **databank**.
 
-<img src="docs/Dude%20-%20Inside%20a%20Driver.png?raw=true" width="500">
+<img src="docs/Dude%20-%20Inside%20a%20Driver.png?raw=true" height="300">
 
 # Transformers
 
