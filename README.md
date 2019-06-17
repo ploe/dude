@@ -144,7 +144,13 @@ The endpoint should just be able to handover the **query/parameters** to the **d
 * mysql
 * mongodb
 
-A **Driver method** should get the **imported** data, they **Driver component** from the **endpoint**.
+A Driver represents a **connection** to a **databank**.
+
+It knows how to take the **imported data** and how to **render** (using jinja2) that in to **queries** for the **databank**.
+
+It then uses the **connection** and the **queries** to **exchange** with the **databank**.
+
+<img src="docs/Dude%20-%20Inside%20a%20Driver.png?raw=true" width="500">
 
 # Transformers
 
