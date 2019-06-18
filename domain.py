@@ -4,6 +4,8 @@ import os
 
 import yaml
 
+DOMAIN_PATH = os.getenv('DUDE_DOMAIN_PATH', '.')
+
 class EndpointInvalid(Exception):
     """Raised when the Endpoint is invalid, should 404"""
     pass
@@ -13,9 +15,7 @@ class Importer():
         self.imports = imports
 
     def load(self):
-
-
-DOMAIN_PATH = os.getenv('DUDE_DOMAIN_PATH', '.')
+        return
 
 class Domain():
     def __init__(self, endpoint, request):
