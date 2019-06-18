@@ -4,6 +4,15 @@ Info: A proof of concept endpoint
 
 READ:
   Imports:
+    args:
+      myke: yes
+      atkinson: yes
+    cookies:
+      test: true
+    headers:
+      session: '#FFFFFF'
+      user: myke
+      salt: pepper
     json:
       test: true
       member:

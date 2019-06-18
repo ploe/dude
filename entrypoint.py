@@ -7,14 +7,7 @@ app = Flask(__name__)
 
 from domain import Domain
 
-@app.before_first_request
-def before_first_request():
-	# dir = get env(DUDE_DOMAIN_DIR)
-	# domain = Domain(dir)
-	print("load endpoints")
-
-
-@app.route('/status')
+@app.route('/')
 def status():
 	return 'up!'
 
@@ -28,6 +21,8 @@ def endpoint_method(endpoint):
         print("get endpoint")
         domain = Domain(endpoint, request)
         importer, driver, transformer = domain.get()
+
+        importer.load(request)
 	# importer, driver, transformer 
 
         # if not importer.load():

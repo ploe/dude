@@ -108,23 +108,23 @@ Only values that are imported are can be used by the **Drivers** and **Transform
 
 The following sources are derived from the HTTP Request.
 
+* args (CREATE, READ, UPDATE, DELETE)
 * cookies (CREATE, READ, UPDATE, DELETE)
 * headers (CREATE, READ, UPDATE, DELETE)
 * json (CREATE, UPDATE)
-* url (CREATE, READ, UPDATE, DELETE)
 
 The import should look and feel sorta like this:
 
 ```yaml
 READ:
   Imports:
-    cookies:
+    args:
       # components
     headers:
       # that
     json:
       # specify
-    url:
+    cookies:
       # data format
 ```
 
@@ -291,8 +291,8 @@ Returns the **total** of all instances in the **group** of **object[key]** added
 
 ```yaml
     paginate:
-      limit: "{{ url.limit }}"
-      page: "{{ url.page }}"
+      limit: "{{ args.limit }}"
+      page: "{{ args.page }}"
 ```
 
 ### limit
