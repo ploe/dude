@@ -1,7 +1,11 @@
 #! /usr/bin/env python3
 
-from flask import Flask
+import os
+
+from flask import Flask, abort, jsonify, request
 app = Flask(__name__)
+
+from domain import Domain
 
 @app.before_first_request
 def before_first_request():
@@ -14,14 +18,24 @@ def before_first_request():
 def status():
 	return 'up!'
 
-@app.route('/<path:path>', methods=['DELETE', 'GET', 'POST', 'PATCH'])
-def endpoint(path):
-	print("get endpoint")
-	# endpoint = domain.get(path)
-	# vars = Importer(request)
-	print("vars = import values")
-	# data = Driver(endpoint, vars)
-	print("data = query driver")
-	# response = Transform(endpoint, vars)
-	print("response = transformed data")
-	return 'Hello, World!'
+@app.route('/favicon.ico')
+def favicon():
+    abort(404)
+
+
+@app.route('/<path:endpoint>', methods=['DELETE', 'GET', 'POST', 'PATCH'])
+def endpoint_method(endpoint):
+        print("get endpoint")
+        domain = Domain(endpoint, request)
+        importer, driver, transformer = domain.get()
+	# importer, driver, transformer 
+
+        # if not importer.load():
+        #   return {importer.errors()}
+        #
+        # driver.method(importer.imported())
+        #
+        # transformer.transform(driver.data)
+
+	# return Response(jsonify(transformer.data()))
+        return jsonify(domain.endpoint)

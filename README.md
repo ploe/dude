@@ -82,9 +82,15 @@ Every **endpoint** implements a **pipeline**.
 
 Each **endpoint** can be thought of as a **HTTP URI**, that runs a query for each object in the **HTTP Request**.
 
+# Domain
+
+A **domain** is a collection of **endpoints** and **databank credentials**.
+
+It hands the primitives of the **pipeline** over to the app.
+
 # The Pipeline
 
-The pipeline is made up of three parts (and the methods which use them):
+The **pipeline** is made up of three parts (and the methods which use them):
 
 * Imports (CREATE, READ, UPDATE, DELETE)
 * Driver (CREATE, READ, UPDATE, DELETE)
