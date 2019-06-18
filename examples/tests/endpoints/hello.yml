@@ -2,6 +2,19 @@ Enabled: true
 Encoding: 'utf-8'
 Info: A proof of concept endpoint
 
+CREATE:
+  Driver:
+    stuff: true
+  Imports:
+    data:
+      list: true
+      of: true
+      keys: true
+    form:
+      test: true
+  Transforms:
+     more stuff: true
+
 READ:
   Imports:
     args:
@@ -13,16 +26,5 @@ READ:
       session: '#FFFFFF'
       user: myke
       salt: pepper
-    json:
-      test: true
-      member:
-        type: "str"
-        reject:
-        - this.contains("list")
-        - this == 'of'
-        - '"patterns" in this'
-    url:
-      page:
-        type: "int"
-        reject:
-        - this > 0
+
+

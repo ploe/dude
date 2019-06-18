@@ -16,7 +16,7 @@ class Importer():
     def __init__(self, imports):
         # each of the following rules components in the Imports
         # should be set as attributes
-        for key in ('args', 'cookies', 'data', 'headers'):
+        for key in ('args', 'cookies', 'data', 'form', 'headers'):
             component = imports.get(key, {})
 
             # If the component is not a dict we're in trouble, so break now.
@@ -31,19 +31,34 @@ class Importer():
         for rule in rules:
             value = data.get(rule, None)
             if value: imported[rule] = value
+            print(rule, value)
 
         return imported
-        
+
+
+    def load_data(self, data):
+        print(data)
+        if isinstance(data, dict):
+            data = [data]
+
+        imported = []
+        if isinstance(data, list):
+            for datum in data:
+                print(datum)
+                imported.append( self.load_from_rules(datum, self.data) )
+
+        return imported
+
 
     def load(self, request):
         self.imported = {}
-        for key in ('args', 'cookies', 'headers'):
+        for key in ('args', 'cookies', 'form', 'headers'):
             data = getattr(request, key)
             rules = getattr(self, key)
 
             self.imported[key] = self.load_from_rules(data, rules)
 
-        print(self.imported)
+        self.imported['data'] = self.load_data(request.json)
 
         return
 

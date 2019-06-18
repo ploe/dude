@@ -111,7 +111,7 @@ The following sources are derived from the HTTP Request.
 * args (CREATE, READ, UPDATE, DELETE)
 * cookies (CREATE, READ, UPDATE, DELETE)
 * headers (CREATE, READ, UPDATE, DELETE)
-* json (CREATE, UPDATE)
+* data (CREATE, UPDATE)
 
 The import should look and feel sorta like this:
 
@@ -122,10 +122,12 @@ READ:
       # components
     headers:
       # that
-    json:
+    data:
       # specify
     cookies:
       # data format
+    form:
+      # and values to import
 ```
 
 ## Types

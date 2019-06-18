@@ -8,11 +8,11 @@ CREATE:
     bank: MySQL
     op: INSERT INTO people (name, age, hobbies) VALUES (%s, %s, %s)
     params:
-    - "{{ url.name }}"
-    - "{{ url.age }}"
-    - "{{ url.hobbies  }}"
+    - "{{ args.name }}"
+    - "{{ args.age }}"
+    - "{{ args.hobbies  }}"
 
-READ:
+READ: {
   Imports:
     json:
       test: true
@@ -22,7 +22,7 @@ READ:
         - this.contains("list")
         - this == 'of'
         - "patterns" in this
-     url:
+     args:
        page:
          type: "int"
          reject:
@@ -32,7 +32,7 @@ READ:
     bank: MySQL
     op: SELECT * FROM people
     params:
-    - "{{ uri.member }}"
+    - "{{ args.member }}"
 
   Transforms:
     data:
@@ -64,6 +64,6 @@ READ:
     - { key: 'name', order: 'asc' }
     - { key: 'age' order: 'desc' }
     paginate:
-      limit: "{{ url.limit }}"
-      page: "{{ url.page }}"
-
+      limit: "{{ args.limit }}"
+      page: "{{ args.page }}"
+}
