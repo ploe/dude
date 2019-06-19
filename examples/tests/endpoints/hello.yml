@@ -23,6 +23,8 @@ READ:
         - list
         - of
         - values
+        reject:
+        - 'this == False'
         type: boolean
     cookies:
       test:
