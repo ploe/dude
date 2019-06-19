@@ -12,9 +12,16 @@ CREATE:
     - "{{ args.age }}"
     - "{{ args.hobbies  }}"
 
-READ: {
+READ:
+  Drivers:
+  - bank: MySQL
+    op: SELECT * FROM people
+    params:
+    - "{{ args.member }}"
+    target: "lol, wut"
+
   Imports:
-    json:
+    data:
       test: true
       member:
         type: "str"
@@ -22,18 +29,21 @@ READ: {
         - this.contains("list")
         - this == 'of'
         - "patterns" in this
+      bool:
      args:
        page:
          type: "int"
          reject:
          - this > 0
-       
-  Driver:
-    bank: MySQL
-    op: SELECT * FROM people
-    params:
-    - "{{ args.member }}"
 
+# future idea
+  Joins:
+  - keys: ['primary_key', 'foreign_key']
+    render: ["{{ this.firstname }}", "{{ this.firstname }}"]
+    source: ['lol, wut', "pool's closed"]
+    target: '_'
+    type: 'inner'
+      
   Transforms:
     data:
     - formal: "Sir {{ this.name }}"
@@ -49,6 +59,7 @@ READ: {
       timestamp:
         key: created
         type: string
+
     group:
       keys:
       - name
@@ -60,10 +71,12 @@ READ: {
         average:
           data: "{{ group.avg('age') }}"
           type: number
+
     order:
     - { key: 'name', order: 'asc' }
     - { key: 'age' order: 'desc' }
+
     paginate:
       limit: "{{ args.limit }}"
       page: "{{ args.page }}"
-}
+

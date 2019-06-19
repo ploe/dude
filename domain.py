@@ -66,7 +66,7 @@ class Importer():
 
 		self.imported['data'] = self.load_data(request.json)
 
-		return
+		return bool(self.errors)
 
 
 class Domain():

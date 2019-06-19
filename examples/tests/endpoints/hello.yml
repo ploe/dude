@@ -19,6 +19,10 @@ READ:
   Imports:
     args:
       enabled:
+        as_false:
+        - list
+        - of
+        - values
         type: boolean
     cookies:
       test:
