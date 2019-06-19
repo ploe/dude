@@ -30,12 +30,13 @@ class Importer():
 	def load_from_rules(self, data, rules, key):
 		imported = {}
 		for rule in rules:
+			component = rules[rule]
 			value = data.get(rule, None)
 			if value:
 				imported[rule] = value
 				print(rule, value)
 			else:
-				err = "'{}' was not in '{}'".format(rule, key)
+				err = "'{}' ({}) was not in '{}'".format(rule, component['type'], key)
 				self.errors.append(err)
 
 		return imported

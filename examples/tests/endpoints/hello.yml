@@ -18,13 +18,14 @@ CREATE:
 READ:
   Imports:
     args:
-      myke: yes
-      atkinson: yes
+      enabled:
+        type: boolean
     cookies:
-      test: true
-    headers:
-      session: '#FFFFFF'
-      user: myke
-      salt: pepper
+      test:
+        type: boolean
+#    headers:
+#      session: '#FFFFFF'
+#      user: myke
+#      salt: pepper
 
 
