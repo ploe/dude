@@ -1,11 +1,13 @@
 #! /usr/bin/env python3
 
 class TypeImporter():
-    def __init__(self, value, component):
-        self.type = 'boolean'
+    def __init__(self, key, rule, value, component):
         self.errors = []
+        self.key = key
+        self.original = self.value = value
+        self.rule = rule
+        self.type = 'boolean'
 
-        self.value = value
         for key in ('as_false', 'reject'):
             setattr(self, key, component.get(key, []))
 
@@ -18,7 +20,14 @@ class TypeImporter():
             }
 
             if eval(reject, {}, local):
-                err = "'{}' ({}) rejected by '{}'".format(self.value, self.type, reject)
+                err = "{}['{}'] ({}): was '{}', now '{}', rejected by '{}'".format(
+                        self.key,
+                        self.rule, 
+                        self.type, 
+                        self.original, 
+                        self.value, 
+                        reject)
+
                 self.errors.append(err)
 
         return not bool(self.errors)

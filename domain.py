@@ -27,12 +27,12 @@ class Importer():
             setattr(self, key, imports.get(key, {}))
 
 
-    def get_type_importer(self, value, component):
+    def get_type_importer(self, key, rule, value, component):
         name = "importers.{}".format(component['type'])
         module = importlib.import_module(name)
         
         TypeImporter = getattr(module, 'TypeImporter')
-        return TypeImporter(value, component)
+        return TypeImporter(key, rule, value, component)
 
 
     def load_from_rules(self, data, rules, key):
@@ -42,12 +42,16 @@ class Importer():
 
             value = data.get(rule, None)
             if value:
-                type_importer = self.get_type_importer(value, component)
+                type_importer = self.get_type_importer(key, rule, value, component)
                 if type_importer.valid(): imported[rule] = value
                 else: self.errors.extend(type_importer.errors)
 
             else:
-                err = "'{}' ({}) was not in '{}'".format(rule, component['type'], key)
+                err = "{}['{}'] ({}): not found".format(
+                        key,
+                        rule, 
+                        component['type'])
+
                 self.errors.append(err)
 
         return imported
