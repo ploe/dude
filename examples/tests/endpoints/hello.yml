@@ -1,6 +1,8 @@
 Enabled: true
 Encoding: 'utf-8'
 Info: A proof of concept endpoint
+Origin:
+- 'ploe.co.uk'
 
 CREATE:
   Driver:
@@ -33,5 +35,3 @@ READ:
 #      session: '#FFFFFF'
 #      user: myke
 #      salt: pepper
-
-

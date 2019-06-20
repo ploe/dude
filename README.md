@@ -137,11 +137,38 @@ The following types will be supported in the first build of the app:
 * str
 * int
 * float
-* bool
+* boolean
+
 
 In the interest of keeping this first build simple these types will have no further validation. Once the bare bones are in these classes can be refactored to add the validation as desired.
 
 In the future I'd want to add primitives for **date**, **datetime** and **time**.
+
+## boolean
+
+Imports a **boolean** value.
+
+```yaml
+READ:
+  Imports:
+    args:
+      enabled:
+        as_false:
+        - list
+        - of
+        - values
+        reject:
+        - 'this == False'
+        type: boolean
+```
+
+### as\_false
+
+Takes a **list of values**. If the **value** is the same as one of the **list**, it is treat as False.
+
+This is because **args** and such-like are always passed to dude as **str**'s, and so are always **true** unless they're blank.
+
+This allows the developer to explicitly set what they want to represent **false**.
 
 # Drivers
 
