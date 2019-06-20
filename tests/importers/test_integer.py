@@ -6,7 +6,7 @@ import unittest
 
 EXPECTED_VALUE=13
 
-class ImporterBooleanTestCase(unittest.TestCase):
+class ImporterIntegerTestCase(unittest.TestCase):
 	def test_integer_as_integer(self):
 		key = 'unittest'
 		rule = 'test_integer_as_integer'
@@ -38,13 +38,13 @@ class ImporterBooleanTestCase(unittest.TestCase):
 
 	def test_integer_reject(self):
 		key = 'unittest'
-		rule = 'test_boolean_reject'
+		rule = 'test_integer_reject'
 		value = '13'
 		component = {
-			'type': 'boolean',
+			'type': 'integer',
 			'reject': ['this == 13']
 		}
 
 		type_importer = TypeImporter(key, rule, value, component)
-		self.assertTrue(type_importer.valid())
+		self.assertFalse(type_importer.valid())
 

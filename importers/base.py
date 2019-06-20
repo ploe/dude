@@ -15,7 +15,7 @@ class TypeImporter():
 
 
 	def has_errors(self):
-		return not bool(self.errors)
+		return bool(self.errors)
 
 
 	def valid(self):
@@ -43,8 +43,6 @@ class TypeImporter():
 						reject)
 
 				self.errors.append(err)
+				return False
 
-		return self.has_errors()
-
-
-
+		return True
