@@ -25,4 +25,5 @@ class TypeImporter(base):
 
 
 	def valid(self):
-		return self.has_errors() or self.validate_reject()
+		self.validate_reject()
+		return self.has_errors()

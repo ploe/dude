@@ -28,6 +28,9 @@ READ:
         reject:
         - 'this == False'
         type: boolean
+      page:
+        reject: ['this >= 10']
+        type: integer
     cookies:
       test:
         type: boolean
