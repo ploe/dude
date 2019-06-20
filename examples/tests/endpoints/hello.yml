@@ -31,6 +31,10 @@ READ:
       page:
         reject: ['this >= 10']
         type: integer
+      percentage:
+        type: float
+        reject: 
+        - '(this < 0) or (this > 100)'
     cookies:
       test:
         type: boolean
