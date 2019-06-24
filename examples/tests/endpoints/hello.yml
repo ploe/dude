@@ -35,6 +35,9 @@ READ:
         type: float
         reject: 
         - '(this < 0) or (this > 100)'
+      user:
+        type: string
+        reject: ['this == "dude"']
     cookies:
       test:
         type: boolean
