@@ -26,6 +26,10 @@ class TypeImporter():
 		for key in args:
 			setattr(self, key, component.get(key, default))
 
+	def append_error(self, prompt, *args):
+		err = prompt.format(*args)
+		self.errors.append(err)
+
 
 	def validate_reject(self):
 		for reject in self.reject:
@@ -34,15 +38,15 @@ class TypeImporter():
 			}
 
 			if eval(reject, {}, local):
-				err = "{}['{}'] ({}): was '{}', now '{}', rejected by '{}'".format(
-						self.key,
-						self.rule, 
-						self.type, 
-						self.original, 
-						self.value, 
-						reject)
+				self.append_error(
+					"{}['{}'] ({}): was '{}', now '{}', rejected by '{}'",
+					self.key,
+					self.rule, 
+					self.type, 
+					self.original, 
+					self.value, 
+					reject)
 
-				self.errors.append(err)
 				return False
 
 		return True

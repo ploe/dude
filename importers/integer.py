@@ -13,13 +13,18 @@ class TypeImporter(base):
 		try:
 			self.value = int(self.value)
 		except ValueError:
-			err = "{}['{}'] ({}): invalid integer".format(
+			self.append_error(
+				"{}['{}'] ({}): invalid integer",
 				self.key,
 				self.rule, 
-				self.type, 
-				self.value)
+				self.type)
 
-			self.errors.append(err)
+		except TypeError:
+			self.append_error(
+				"{}['{}'] ({}): invalid type",
+				self.key,
+				self.rule,
+				self.type)
 
 		return self.has_errors()
 
