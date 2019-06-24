@@ -48,6 +48,7 @@ class Importer():
 						component['type'])
 
 				self.errors.append(err)
+				continue
 
 			type_importer = self.get_type_importer(key, rule, value, component)
 			if type_importer.valid():

@@ -26,8 +26,16 @@ class TypeImporter():
 		for key in args:
 			setattr(self, key, component.get(key, default))
 
+
 	def append_error(self, prompt, *args):
-		err = prompt.format(*args)
+		msg = prompt.format(*args)
+		err = "{}['{}'] ({}): {}".format(
+			self.key,
+			self.rule,
+			self.type,
+			msg,
+		)
+
 		self.errors.append(err)
 
 
@@ -39,10 +47,7 @@ class TypeImporter():
 
 			if eval(reject, {}, local):
 				self.append_error(
-					"{}['{}'] ({}): was '{}', now '{}', rejected by '{}'",
-					self.key,
-					self.rule, 
-					self.type, 
+					"was '{}', now '{}', rejected by '{}'",
 					self.original, 
 					self.value, 
 					reject)
@@ -50,3 +55,4 @@ class TypeImporter():
 				return False
 
 		return True
+

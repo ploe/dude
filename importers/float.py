@@ -12,18 +12,20 @@ class TypeImporter(base):
 	def value_to_float(self):
 		try:
 			self.value = float(self.value)
-		except ValueError:
-			err = "{}['{}'] ({}): invalid float".format(
-				self.key,
-				self.rule, 
-				self.type, 
-				self.value)
 
-			self.errors.append(err)
+		except ValueError:
+			self.append_error("'{}' invalid float", self.value)
+
+		except TypeError:
+			self.append_error("'{}' invalid type, should be float", self.value)
 
 		return self.has_errors()
 
 
 	def valid(self):
-		self.validate_reject()
+		if not self.has_errors():
+			self.validate_reject()
+
 		return not self.has_errors()
+
+
