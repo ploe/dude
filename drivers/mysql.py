@@ -11,7 +11,18 @@ class Driver:
         self.cursor.close()
         self.db.close()
 
-    def read(self, query):
+
+    def delete(self, query):
+        try:
+            self.cursor.execute(query['op'], query['params'])
+            self.db.commit()
+        except:
+            return None
+
+        return self.cursor.rowcount
+
+
+    def get(self, query):
             try:
                 self.cursor.execute(query['op'], query['params'])
             except Exception as e:
@@ -19,11 +30,14 @@ class Driver:
 
             return self.cursor.fetchall()
 
-    def create(self, imported, query):
+
+    def post(self, imported, query):
         return self.write(query)
 
-    def update(self, query):
+
+    def patch(self, query):
         return self.write(query)
+
 
     def write(self, query):
         op = query['op']
@@ -34,11 +48,3 @@ class Driver:
 
         return self.cursor.lastrowid
 
-    def delete(self, query):
-        try:
-            self.cursor.execute(query['op'], query['params'])
-            self.db.commit()
-        except:
-            return None
-
-        return self.cursor.rowcount

@@ -87,9 +87,32 @@ class Importer():
 		return bool(self.errors)
 
 class Driver():
-	def __init__(self, driver, method):
-		self.driver = driver
-		self.method = method
+	def __init__(self, component, method):
+		self.bank = self.get_bank(component['bank'])
+		self.driver = self.get_driver()
+		self.method = getattr(self.driver, method.lower())
+
+	def call_method(self):
+		return self.method()
+
+	def get_bank(self, bank):
+		data = None
+		src = "{}/banks/{}.yml".format(DOMAIN_PATH, bank)
+
+		with open(src, 'r') as f:
+			data = yaml.load(f, Loader=yaml.Loader)
+
+		return data
+
+	def get_driver(self):
+		driver = self.bank['Driver']
+
+		name = "drivers.{}".format(driver)
+		module = importlib.import_module(name)
+	
+		new = getattr(module, 'Driver')
+		return new(self.bank['Creds'])
+		
 
 
 
