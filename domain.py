@@ -86,6 +86,12 @@ class Importer():
 
 		return bool(self.errors)
 
+class Driver():
+	def __init__(self, driver, method):
+		self.driver = driver
+		self.method = method
+
+
 
 class Domain():
 	def __init__(self, endpoint, request):
@@ -99,6 +105,7 @@ class Domain():
 			setattr(self, key.lower(), component)
 
 		self.importer = Importer(self.imports)
+		self.driver = Driver(self.driver, request.method)
 
 
 	def get_endpoint(self, endpoint, request):

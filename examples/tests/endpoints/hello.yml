@@ -18,30 +18,18 @@ CREATE:
      more stuff: true
 
 READ:
+  Driver:
+    bank: 'tests_mysql'
+    query:
+      op: "SELECT * FROM tests_mysql.test_data WHERE firstname=? and lucky_number=?"
+      params:
+      - "{{ args.firstname }}"
+      - "{{ args.lucky_number }}"
+
   Imports:
     args:
-      enabled:
-        as_false:
-        - list
-        - of
-        - values
-        reject:
-        - 'this == False'
-        type: boolean
-      page:
-        reject: ['this >= 10']
+      lucky_number:
         type: integer
-      percentage:
-        type: float
-        reject: 
-        - '(this < 0) or (this > 100)'
-      user:
+      first_name:
         type: string
-        reject: ['this == "dude"']
-    cookies:
-      test:
-        type: boolean
-#    headers:
-#      session: '#FFFFFF'
-#      user: myke
-#      salt: pepper
+

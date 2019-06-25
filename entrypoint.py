@@ -22,15 +22,12 @@ def endpoint_method(endpoint):
         domain = Domain(endpoint, request)
         importer, driver, transformer = domain.get()
 
-        importer.load(request)
-	# importer, driver, transformer 
 
-        # if not importer.load():
-        #   return {importer.errors()}
-        #
-        # driver.method(importer.imported())
+        if not importer.load(request):
+        	return jsonify(importer.errors)
+        
+	driver.method(importer.imported())
         #
         # transformer.transform(driver.data)
 
 	# return Response(jsonify(transformer.data()))
-        return jsonify(importer.errors)
