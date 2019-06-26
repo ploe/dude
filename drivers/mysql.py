@@ -2,49 +2,69 @@
 
 import MySQLdb
 
+from jinja2 import Template
+
 class Driver:
-    def __init__(self, src):
-        self.db = MySQLdb.connect(**src)
-        self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
+	def __init__(self, bank):
+		self.db = MySQLdb.connect(**bank)
+		self.cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
 
-    def __del__(self):
-        self.cursor.close()
-        self.db.close()
-
-
-    def delete(self, query):
-        try:
-            self.cursor.execute(query['op'], query['params'])
-            self.db.commit()
-        except:
-            return None
-
-        return self.cursor.rowcount
+	def __del__(self):
+		self.cursor.close()
+		self.db.close()
 
 
-    def get(self, query):
-            try:
-                self.cursor.execute(query['op'], query['params'])
-            except Exception as e:
-                return None
+	def delete(self, query):
+		try:
+			self.cursor.execute(query['op'], query['params'])
+			self.db.commit()
+		except:
+			return None
 
-            return self.cursor.fetchall()
-
-
-    def post(self, imported, query):
-        return self.write(query)
+		return self.cursor.rowcount
 
 
-    def patch(self, query):
-        return self.write(query)
+	def get(self, query):
+			try:
+				self.cursor.execute(query['op'], query['params'])
+			except Exception as e:
+				return None
+
+			return self.cursor.fetchall()
 
 
-    def write(self, query):
-        op = query['op']
-        for params in query['params']:
-            self.cursor.execute(op, params)
-        
-        self.db.commit()
+	def post(self, imported, query):
+		return self.write(imported, query)
 
-        return self.cursor.lastrowid
 
+	def patch(self, query):
+		return self.write(query)
+
+
+	def write(self, imported, query):
+		op = query['op']
+		data = self.render_query(imported, query)
+
+		for datum in data:
+			params = datum.pop('params')
+			self.cursor.execute(op, params)
+			datum['lastrowid'] = self.cursor.lastrowid
+		
+		self.db.commit()
+
+		return data
+
+
+	def render_query(self, imported, query):
+		data = imported['data']
+		local = imported.copy()
+
+		for datum in data:
+			datum['params'] = []
+			local['data'] = datum
+
+			for param in query['params']:
+				t = Template(param)
+				datum['params'].append( t.render(**local) )
+
+		return data

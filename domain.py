@@ -61,14 +61,12 @@ class Importer():
 
 
 	def load_data(self, data):
-		print(data)
 		if isinstance(data, dict):
 			data = [data]
 
 		imported = []
 		if isinstance(data, list):
 			for datum in data:
-				print(datum)
 				imported.append( self.load_from_rules(datum, self.data, 'data') )
 
 		return imported
@@ -84,7 +82,7 @@ class Importer():
 
 		self.imported['data'] = self.load_data(request.json)
 
-		return bool(self.errors)
+		return not bool(self.errors)
 
 class Driver():
 	def __init__(self, component, method):
