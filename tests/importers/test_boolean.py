@@ -4,14 +4,13 @@ from importers.boolean import TypeImporter
 
 import unittest
 
+
 class ImporterBooleanTestCase(unittest.TestCase):
     def test_boolean_true(self):
         key = 'unittest'
         rule = 'test_boolean_true'
         value = True
-        component = {
-            'type': 'boolean'
-        }
+        component = {'type': 'boolean'}
 
         type_importer = TypeImporter(key, rule, value, component)
         self.assertTrue(type_importer.valid())
@@ -21,9 +20,7 @@ class ImporterBooleanTestCase(unittest.TestCase):
         key = 'unittest'
         rule = 'test_boolean_false'
         value = False
-        component = {
-            'type': 'boolean'
-        }
+        component = {'type': 'boolean'}
 
         type_importer = TypeImporter(key, rule, value, component)
         self.assertTrue(type_importer.valid())
@@ -33,10 +30,7 @@ class ImporterBooleanTestCase(unittest.TestCase):
         key = 'unittest'
         rule = 'test_boolean_reject'
         value = True
-        component = {
-            'type': 'boolean',
-            'reject': ['this == True']
-        }
+        component = {'type': 'boolean', 'reject': ['this == True']}
 
         type_importer = TypeImporter(key, rule, value, component)
         self.assertFalse(type_importer.valid())
@@ -45,11 +39,7 @@ class ImporterBooleanTestCase(unittest.TestCase):
         key = 'unittest'
         rule = 'test_boolean_as_false'
         value = 'False'
-        component = {
-            'type': 'boolean',
-            'as_false': ['False']
-        }
+        component = {'type': 'boolean', 'as_false': ['False']}
 
         type_importer = TypeImporter(key, rule, value, component)
         self.assertFalse(type_importer.value)
-

@@ -7,28 +7,29 @@ app = Flask(__name__)
 
 from domain import Domain
 
+
 @app.route('/')
 def status():
-	return 'up!'
+    return 'up!'
+
 
 @app.route('/favicon.ico')
 def favicon():
-	abort(404)
+    abort(404)
 
 
 @app.route('/<path:endpoint>', methods=['DELETE', 'GET', 'POST', 'PATCH'])
 def endpoint_method(endpoint):
-	print("get endpoint")
-	domain = Domain(endpoint, request)
-	importer, driver, transformer = domain.get()
+    print("get endpoint")
+    domain = Domain(endpoint, request)
+    importer, driver, transformer = domain.get()
 
+    if not importer.load(request):
+        return jsonify(importer.errors)
 
-	if not importer.load(request):
-		return jsonify(importer.errors)
-	print(importer.errors)	
-	#driver.method(importer.imported())
-		#
-		# transformer.transform(driver.data)
+    print(driver.method(importer.imported))
+    #
+    # transformer.transform(driver.data)
 
-	# return Response(jsonify(transformer.data()))
-	return "Yos"
+    # return Response(jsonify(transformer.data()))
+    return "Yos"
