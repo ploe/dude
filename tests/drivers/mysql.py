@@ -20,24 +20,40 @@ class DriverTestCase(unittest.TestCase):
 
         self.driver.cursor.execute("CREATE DATABASE IF NOT EXISTS dude_tests;")
 
-    def get_data(self):
+    def create_table(self, table):
+        schema = """
+            CREATE TABLE IF NOT EXISTS {} (
+                id int NOT NULL AUTO_INCREMENT,
+                firstname VARCHAR(255),
+                lastname VARCHAR(255),
+                hobby VARCHAR(255),
+                lucky_number INT,
+                PRIMARY KEY (id)
+            );
+        """.format(table)
+
+        self.driver.cursor.execute(schema)
+
+    def drop_table(self, table):
+        query = "DROP TABLE IF EXISTS {}".format(table)
+
+        self.driver.cursor.execute(query)
+
+    def get_imported_data(self):
+        imported = {
+            'cookies': {},
+            'form': {},
+            'header': {},
+            'url': {},
+        }
+
         with open('./examples/tests/data.yml') as f:
-            return yaml.load(f, Loader=yaml.Loader)
+            imported['data'] = yaml.load(f, Loader=yaml.Loader)
 
-    def render_create_table(self, table):
-        return """
-			CREATE TABLE IF NOT EXISTS {} (
-				id int NOT NULL AUTO_INCREMENT,
-				firstname VARCHAR(255),
-				lastname VARCHAR(255),
-				hobby VARCHAR(255),
-				lucky_number INT,
-				PRIMARY KEY (id)
-			);
-		""".format(table)
+        return imported
 
-    def render_insert_query(self, table):
-        return {
+    def insert_query(self, imported, table):
+        query = {
             'op':
             "INSERT INTO {} (firstname, lastname, hobby, lucky_number) VALUES (%s, %s, %s, %s);"
             .format(table),
@@ -47,18 +63,23 @@ class DriverTestCase(unittest.TestCase):
             ]
         }
 
+        self.driver.post(imported, query)
+
+    def test_get(self):
+        table = 'dude_tests.test_get_data'
+        self.create_table(table)
+
+        imported = self.get_imported_data()
+        self.insert_query(imported, table)
+
+        self.drop_table(table)
+
     def test_post(self):
         table = 'dude_tests.test_post_data'
+        self.create_table(table)
 
-        self.driver.cursor.execute(self.render_create_table(table))
+        imported = self.get_imported_data()
 
-        imported = {
-            'cookies': {},
-            'data': self.get_data(),
-            'form': {},
-            'header': {},
-            'url': {},
-        }
+        query = self.insert_query(imported, table)
 
-        query = self.render_insert_query(table)
-        self.driver.post(imported, query)
+        self.drop_table(table)
