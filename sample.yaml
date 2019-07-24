@@ -52,10 +52,11 @@ GET:
         type: integer
         publish: false
       expires:
-        key: created
+        src: created
         type: datetime
-        +delta:
+        +delta!:
           weeks: 2
+        strptime!: ['%Y-12-31T23:59:59', '%Y-%m-%dT%H:%M:%S']
       timestamp:
         key: created
         type: string

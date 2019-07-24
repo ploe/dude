@@ -42,7 +42,10 @@ class DriverTestCase(unittest.TestCase):
     def get_imported_data(self):
         imported = {
             'cookies': {},
-            'form': {},
+            'form': {
+                'firstname': 'David',
+                'lucky_number': 6
+            },
             'header': {},
             'url': {},
         }
@@ -65,12 +68,26 @@ class DriverTestCase(unittest.TestCase):
 
         self.driver.post(imported, query)
 
+    def select_query(self, imported, table):
+        query = {
+            'op':
+            "SELECT * FROM {} WHERE firstname=%s and lucky_number=%s ORDER BY id DESC"
+            .format(table),
+            'params': [
+                '{{ form.firstname }}',
+                '{{ form.lucky_number }}',
+            ],
+        }
+
+        return self.driver.get(imported, query)
+
     def test_get(self):
         table = 'dude_tests.test_get_data'
         self.create_table(table)
 
         imported = self.get_imported_data()
         self.insert_query(imported, table)
+        print(self.select_query(imported, table))
 
         self.drop_table(table)
 

@@ -23,11 +23,11 @@ class Driver:
 
         return self.cursor.rowcount
 
-    def get(self, query):
-        try:
-            self.cursor.execute(query['op'], query['params'])
-        except Exception as e:
-            return None
+    def get(self, imported, query):
+        op = query['op']
+        params = self.render_params(imported, query)
+
+        self.cursor.execute(op, params)
 
         return self.cursor.fetchall()
 
@@ -39,7 +39,7 @@ class Driver:
 
     def write(self, imported, query):
         op = query['op']
-        data = self.render_query(imported, query)
+        data = self.render_writes(imported, query)
 
         for datum in data:
             params = datum.pop('params')
@@ -50,7 +50,15 @@ class Driver:
 
         return data
 
-    def render_query(self, imported, query):
+    def render_params(self, imported, query):
+        rendered = []
+        for param in query['params']:
+            t = Template(param)
+            rendered.append(t.render(**imported))
+
+        return rendered
+
+    def render_writes(self, imported, query):
         data = imported['data']
         local = imported.copy()
 
@@ -60,6 +68,6 @@ class Driver:
 
             for param in query['params']:
                 t = Template(param)
-                datum['params'].append(t.render(**local))
+                datum['params'] = self.render_params(local, query)
 
         return data
