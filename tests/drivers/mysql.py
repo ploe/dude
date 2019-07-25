@@ -71,7 +71,7 @@ class DriverTestCase(unittest.TestCase):
     def select_query(self, imported, table):
         query = {
             'op':
-            "SELECT * FROM {} WHERE firstname=%s and lucky_number=%s ORDER BY id DESC"
+            "SELECT * FROM {} WHERE firstname=%s and lucky_number=%s ORDER BY id ASC"
             .format(table),
             'params': [
                 '{{ form.firstname }}',
@@ -86,10 +86,26 @@ class DriverTestCase(unittest.TestCase):
         self.create_table(table)
 
         imported = self.get_imported_data()
-        self.insert_query(imported, table)
-        print(self.select_query(imported, table))
 
+        self.insert_query(imported, table)
+        rows = self.select_query(imported, table)
         self.drop_table(table)
+
+        data = []
+        for datum in imported['data']:
+            if (datum['firstname'] == 'David') and (
+                    datum['lucky_number'] == 6):
+                data.append(datum)
+
+        data = sorted(data, key=lambda k: k['lastrowid'], reverse=True)
+
+        for row in rows:
+            datum = data.pop()
+            datum['id'] = datum.pop('lastrowid')
+
+            for key in row:
+                print(key, row[key], datum[key])
+                self.assertEqual(row[key], datum[key])
 
     def test_post(self):
         table = 'dude_tests.test_post_data'

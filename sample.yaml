@@ -11,6 +11,12 @@ POST:
     - "{{ args.name }}"
     - "{{ args.age }}"
     - "{{ args.hobbies  }}"
+	vars:
+    - timedelta:
+        days: 
+        hours:
+        minutes:
+        seconds:
 
 GET:
   Drivers:
@@ -48,15 +54,14 @@ GET:
     data:
     - formal: "Sir {{ this.name }}"
       lucky:
-        data: "{{ this.age - 13 }}"
+        template: "{{ this.age - 13 }}"
         type: integer
         publish: false
       expires:
         src: created
         type: datetime
-        +delta!:
+        delta:
           weeks: 2
-        strptime!: ['%Y-12-31T23:59:59', '%Y-%m-%dT%H:%M:%S']
       timestamp:
         key: created
         type: string

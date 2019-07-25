@@ -45,7 +45,6 @@ class Driver:
             params = datum.pop('params')
             self.cursor.execute(op, params)
             datum['lastrowid'] = self.cursor.lastrowid
-
         self.db.commit()
 
         return data
