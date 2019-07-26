@@ -27,7 +27,7 @@ def endpoint_method(endpoint):
     if not importer.load(request):
         return jsonify(importer.errors)
 
-    print(driver.method(importer.imported))
+    #print(driver.method(importer.imported))
     #
     # transformer.transform(driver.data)
 

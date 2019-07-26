@@ -33,4 +33,8 @@ READ:
         type: integer
       first_name:
         type: string
-
+    vars:
+    - formal:
+        template: 'Mr {{ args.first_name }}'
+        type: string
+          
