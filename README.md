@@ -128,7 +128,15 @@ READ:
       # data format
     form:
       # and values to import
+    vars:
+      # and some to render
 ```
+
+## vars
+
+There is some refactoring due, as I want to add vars instead of rendering the Driver params inline.
+
+vars are used to render additional data to pass along to the Driver.
 
 ## Types
 

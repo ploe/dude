@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import importlib
 import unittest
 
 import yaml
@@ -41,13 +40,15 @@ class DriverTestCase(unittest.TestCase):
 
     def get_imported_data(self):
         imported = {
+            'args': {
+                'firstname': 'Jack'
+            },
             'cookies': {},
             'form': {
                 'firstname': 'David',
                 'lucky_number': 6
             },
             'header': {},
-            'url': {},
         }
 
         with open('./examples/tests/data.yml') as f:
@@ -66,7 +67,7 @@ class DriverTestCase(unittest.TestCase):
             ]
         }
 
-        self.driver.post(imported, query)
+        return self.driver.post(imported, query)
 
     def select_query(self, imported, table):
         query = {
@@ -95,17 +96,59 @@ class DriverTestCase(unittest.TestCase):
         for datum in imported['data']:
             if (datum['firstname'] == 'David') and (
                     datum['lucky_number'] == 6):
+
+                datum['id'] = datum.pop('lastrowid')
                 data.append(datum)
 
-        data = sorted(data, key=lambda k: k['lastrowid'], reverse=True)
+        data = sorted(data, key=lambda datum: datum['id'], reverse=True)
 
         for row in rows:
             datum = data.pop()
-            datum['id'] = datum.pop('lastrowid')
 
             for key in row:
-                print(key, row[key], datum[key])
                 self.assertEqual(row[key], datum[key])
+
+
+#    def test_delete(self):
+#        table = 'dude_tests.test_delete_data'
+#        self.create_table(table)
+#
+#        imported = self.get_imported_data()
+#
+#        self.insert_query(imported, table)
+#
+#        query = {
+#            'op':
+#            "DELETE FROM {} WHERE firstname=%s;"
+#            .format(table),
+#            'params': [
+#                '{{ args.firstname }}'
+#            ]
+#
+#        }
+#        self.driver.delete(imported, query)
+#
+#        query = { 'op': "SELECT * FROM {} ORDER BY id ASC".format(table), 'params': []}
+#        rows = self.driver.get(imported, query)
+#        print(rows)
+#        self.drop_table(table)
+#
+#        data = []
+#        for datum in imported['data']:
+#            if (datum['firstname'] != 'Jack'):
+#                datum['id'] = datum.pop('lastrowid')
+#                data.append(datum)
+#
+#        data = sorted(data, key=lambda datum: datum['id'])
+#
+#        for row in rows:
+#            datum = data.pop()
+#
+#            for key in row:
+#                print(row['firstname'], datum['firstname'])
+#
+#                print(key, row[key], datum[key])
+#                self.assertEqual(row[key], datum[key])
 
     def test_post(self):
         table = 'dude_tests.test_post_data'
@@ -113,6 +156,8 @@ class DriverTestCase(unittest.TestCase):
 
         imported = self.get_imported_data()
 
-        query = self.insert_query(imported, table)
-
+        rows = self.insert_query(imported, table)
         self.drop_table(table)
+
+        for row in rows:
+            self.assertTrue(row.get('lastrowid', False))

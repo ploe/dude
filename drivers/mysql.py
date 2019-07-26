@@ -14,14 +14,15 @@ class Driver:
         self.cursor.close()
         self.db.close()
 
-    def delete(self, query):
-        try:
-            self.cursor.execute(query['op'], query['params'])
-            self.db.commit()
-        except:
-            return None
+    def delete(self, imported, query):
+        op = query['op']
+        data = self.render_writes(imported, query)
 
-        return self.cursor.rowcount
+        for datum in data:
+            params = datum.pop('params')
+            self.cursor.execute(op, params)
+
+        self.db.commit()
 
     def get(self, imported, query):
         op = query['op']
@@ -60,6 +61,9 @@ class Driver:
     def render_writes(self, imported, query):
         data = imported['data']
         local = imported.copy()
+
+        if not data:
+            data.append({})
 
         for datum in data:
             datum['params'] = []
