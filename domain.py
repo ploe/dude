@@ -16,7 +16,7 @@ class EndpointInvalid(Exception):
 class Importer():
     def __init__(self, imports):
         self.errors = []
-        # each of the following rules components in the Imports
+        # each of the following components components in the Imports
         # should be set as attributes
         for source in ('args', 'cookies', 'data', 'form', 'headers', 'vars'):
             component = imports.get(source, {})
@@ -27,46 +27,46 @@ class Importer():
 
             setattr(self, source, imports.get(source, {}))
 
-    def get_type_importer(self, source, rule, value, component):
+    def get_type_importer(self, source, tag, value, component):
         name = "importers.{}".format(component['type'])
         module = importlib.import_module(name)
 
-        TypeImporter = getattr(module, 'TypeImporter')
-        return TypeImporter(source, rule, value, component)
+        type_importer = getattr(module, 'TypeImporter')
+        return type_importer(source, tag, value, component)
 
-    def load_from_rules(self, data, rules, source):
+    def import_payload(self, payload, components, source):
         imported = {}
-        for rule in rules:
-            component = rules[rule]
+        for tag in components:
+            component = components[tag]
 
-            value = data.get(rule, None)
+            value = data.get(tag, None)
             if not value:
                 err = "{}['{}'] ({}): not found".format(
-                    source, rule, component['type'])
+                    source, tag, component['type'])
 
                 self.errors.append(err)
                 continue
 
-            type_importer = self.get_type_importer(source, rule, value, component)
+            type_importer = self.get_type_importer(source, tag, value, component)
             if type_importer.valid():
-                imported[rule] = type_importer.value
+                imported[tag] = type_importer.value
 
-            elf.errors.extend(type_importer.errors)
+            self.errors.extend(type_importer.errors)
 
         return imported
 
-    def load_data(self, data):
+    def import_data(self, data):
         if isinstance(data, dict):
             data = [data]
 
         imported = []
         if isinstance(data, list):
             for datum in data:
-                imported.append(self.load_from_rules(datum, self.data, 'data'))
+                imported.append(self.import_payload(datum, self.data, 'data'))
 
         return imported
 
-    def load_vars(self):
+    def import_vars(self):
         if isinstance(self.vars, dict):
             self.vars = [self.vars]
 
@@ -83,12 +83,12 @@ class Importer():
     def load(self, request):
         self.imported = {}
         for source in ('args', 'cookies', 'form', 'headers'):
-            data = getattr(request, source)
-            rules = getattr(self, source)
+            payload = getattr(request, source)
+            components = getattr(self, source)
 
-            self.imported[source] = self.load_from_rules(data, rules, source)
+            self.imported[source] = self.import_payload(payload, components, source)
 
-        self.imported['data'] = self.load_data(request.json)
+        self.imported['data'] = self.import_data(request.json)
         #self.imported['vars'] = self.load_vars()
 
         return not bool(self.errors)
