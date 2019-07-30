@@ -18,23 +18,23 @@ class Importer():
         self.errors = []
         # each of the following rules components in the Imports
         # should be set as attributes
-        for key in ('args', 'cookies', 'data', 'form', 'headers', 'vars'):
-            component = imports.get(key, {})
+        for source in ('args', 'cookies', 'data', 'form', 'headers', 'vars'):
+            component = imports.get(source, {})
 
             # If the component is not a dict we're in trouble, so break now.
             if type(component) is not dict:
                 raise TypeError
 
-            setattr(self, key, imports.get(key, {}))
+            setattr(self, source, imports.get(source, {}))
 
-    def get_type_importer(self, key, rule, value, component):
+    def get_type_importer(self, source, rule, value, component):
         name = "importers.{}".format(component['type'])
         module = importlib.import_module(name)
 
         TypeImporter = getattr(module, 'TypeImporter')
-        return TypeImporter(key, rule, value, component)
+        return TypeImporter(source, rule, value, component)
 
-    def load_from_rules(self, data, rules, key):
+    def load_from_rules(self, data, rules, source):
         imported = {}
         for rule in rules:
             component = rules[rule]
@@ -42,16 +42,16 @@ class Importer():
             value = data.get(rule, None)
             if not value:
                 err = "{}['{}'] ({}): not found".format(
-                    key, rule, component['type'])
+                    source, rule, component['type'])
 
                 self.errors.append(err)
                 continue
 
-            type_importer = self.get_type_importer(key, rule, value, component)
+            type_importer = self.get_type_importer(source, rule, value, component)
             if type_importer.valid():
                 imported[rule] = type_importer.value
 
-            self.errors.extend(type_importer.errors)
+            elf.errors.extend(type_importer.errors)
 
         return imported
 
@@ -76,18 +76,20 @@ class Importer():
         imported = {}
         for iteration in self.vars:
             for var in iteration:
-                #imported[var] = 
+                component = iteration[var]
+                type_importer = self.get_type_importer('vars')
+                #imported[var] =
 
     def load(self, request):
         self.imported = {}
-        for key in ('args', 'cookies', 'form', 'headers'):
-            data = getattr(request, key)
-            rules = getattr(self, key)
+        for source in ('args', 'cookies', 'form', 'headers'):
+            data = getattr(request, source)
+            rules = getattr(self, source)
 
-            self.imported[key] = self.load_from_rules(data, rules, key)
+            self.imported[source] = self.load_from_rules(data, rules, source)
 
         self.imported['data'] = self.load_data(request.json)
-        self.imported['vars'] = self.load_vars()
+        #self.imported['vars'] = self.load_vars()
 
         return not bool(self.errors)
 

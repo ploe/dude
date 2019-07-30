@@ -4,9 +4,9 @@
 
 class TypeImporter():
     """The base TypeImporter is the TypeImporter all child classes should inherit from."""
-    def __init__(self, key, rule, value, component):
+    def __init__(self, source, rule, value, component):
         self.errors = []
-        self.key = key
+        self.source = source
         self.original = self.value = value
         self.rule = rule
 
@@ -34,7 +34,7 @@ class TypeImporter():
         """Add a new error message to errors"""
         msg = prompt.format(*args)
         err = "{}['{}'] ({}): {}".format(
-            self.key,
+            self.source,
             self.rule,
             self.type,
             msg,
