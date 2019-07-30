@@ -5,6 +5,8 @@ import os
 
 import yaml
 
+from jinja2 import Template
+
 DOMAIN_PATH = os.getenv('DUDE_DOMAIN_PATH', '.')
 
 
@@ -45,7 +47,7 @@ class Importer():
         return type_importer(source, tag, value, component)
 
     def import_payload(self, payload, components, source):
-        imported = {}
+        self.imported[source] = imported = {}
         for tag in components:
             component = components[tag]
 
@@ -64,28 +66,30 @@ class Importer():
 
             self.errors.extend(type_importer.errors)
 
-        return imported
-
     def import_data(self, data):
+        self.imported['data'] = imported = []
         if isinstance(data, dict):
             data = [data]
 
-        imported = []
         if isinstance(data, list):
             for datum in data:
                 imported.append(self.import_payload(datum, self.data, 'data'))
 
-        return imported
-
     def import_vars(self):
-        imported = {}
+        self.imported['vars'] = imported = {}
         for iteration in self.vars:
-            for var in iteration:
-                component = iteration[var]
-                value = iteration.pop('template')
-                type_importer = self.get_type_importer('vars', var, value,
+            for tag in iteration:
+                component = iteration[tag]
+                template = component.pop('template')
+                t = Template(template)
+                value = t.render(**self.imported)
+
+                type_importer = self.get_type_importer('vars', tag, value,
                                                        component)
-                #imported[var] =
+                if type_importer.valid():
+                    imported[tag] = type_importer.value
+
+                self.errors.extend(type_importer.errors)
 
     def import_request(self, request):
         self.imported = {}
@@ -93,11 +97,10 @@ class Importer():
             payload = getattr(request, source)
             components = getattr(self, source)
 
-            self.imported[source] = self.import_payload(
-                payload, components, source)
+            self.import_payload(payload, components, source)
 
-        self.imported['data'] = self.import_data(request.json)
-        #self.imported['vars'] = self.load_vars()
+        self.import_data(request.json)
+        self.import_vars()
 
         return not bool(self.errors)
 
