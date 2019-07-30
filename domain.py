@@ -18,7 +18,7 @@ class Importer():
         self.errors = []
         # each of the following components components in the Imports
         # should be set as attributes
-        for source in ('args', 'cookies', 'data', 'form', 'headers', 'vars'):
+        for source in ('args', 'cookies', 'data', 'form', 'headers'):
             component = imports.get(source, {})
 
             # If the component is not a dict we're in trouble, so break now.
@@ -26,6 +26,16 @@ class Importer():
                 raise TypeError
 
             setattr(self, source, imports.get(source, {}))
+
+        variables = imports.get('vars', [])
+
+        if type(variables) is dict:
+            variables = [variables]
+
+        if type(variables) is not list:
+            raise TypeError
+
+        self.vars = variables
 
     def get_type_importer(self, source, tag, value, component):
         name = "importers.{}".format(component['type'])
@@ -39,7 +49,7 @@ class Importer():
         for tag in components:
             component = components[tag]
 
-            value = data.get(tag, None)
+            value = payload.get(tag, None)
             if not value:
                 err = "{}['{}'] ({}): not found".format(
                     source, tag, component['type'])
@@ -68,20 +78,16 @@ class Importer():
         return imported
 
     def import_vars(self):
-        if isinstance(self.vars, dict):
-            self.vars = [self.vars]
-
-        if not isinstance(self.vars, list):
-            return
-
         imported = {}
         for iteration in self.vars:
             for var in iteration:
                 component = iteration[var]
-                type_importer = self.get_type_importer('vars')
+                value = iteration.pop('template')
+                type_importer = self.get_type_importer('vars', var, value,
+                                                       component)
                 #imported[var] =
 
-    def load(self, request):
+    def import_request(self, request):
         self.imported = {}
         for source in ('args', 'cookies', 'form', 'headers'):
             payload = getattr(request, source)

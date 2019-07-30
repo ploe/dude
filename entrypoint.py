@@ -24,7 +24,7 @@ def endpoint_method(endpoint):
     domain = Domain(endpoint, request)
     importer, driver, transformer = domain.get()
 
-    if not importer.load(request):
+    if not importer.import_request(request):
         return jsonify(importer.errors)
 
     #print(driver.method(importer.imported))
