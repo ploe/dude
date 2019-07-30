@@ -37,4 +37,7 @@ READ:
     - formal:
         template: 'Mr {{ args.first_name }}'
         type: string
+    - unlucky_number:
+        template: '{{ args.lucky_number / 13 }}'
+        type: float
           

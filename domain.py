@@ -76,10 +76,13 @@ class Importer():
                 imported.append(self.import_payload(datum, self.data, 'data'))
 
     def import_vars(self):
+        if self.errors: return
+
         self.imported['vars'] = imported = {}
         for iteration in self.vars:
             for tag in iteration:
                 component = iteration[tag]
+
                 template = component.pop('template')
                 t = Template(template)
                 value = t.render(**self.imported)
@@ -101,7 +104,7 @@ class Importer():
 
         self.import_data(request.json)
         self.import_vars()
-
+        print(self.imported)
         return not bool(self.errors)
 
 
