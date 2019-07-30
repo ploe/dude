@@ -47,7 +47,8 @@ class Importer():
                 self.errors.append(err)
                 continue
 
-            type_importer = self.get_type_importer(source, tag, value, component)
+            type_importer = self.get_type_importer(source, tag, value,
+                                                   component)
             if type_importer.valid():
                 imported[tag] = type_importer.value
 
@@ -72,7 +73,7 @@ class Importer():
 
         if not isinstance(self.vars, list):
             return
-        
+
         imported = {}
         for iteration in self.vars:
             for var in iteration:
@@ -86,7 +87,8 @@ class Importer():
             payload = getattr(request, source)
             components = getattr(self, source)
 
-            self.imported[source] = self.import_payload(payload, components, source)
+            self.imported[source] = self.import_payload(
+                payload, components, source)
 
         self.imported['data'] = self.import_data(request.json)
         #self.imported['vars'] = self.load_vars()
