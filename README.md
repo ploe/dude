@@ -134,9 +134,24 @@ READ:
 
 ## vars
 
-There is some refactoring due, as I want to add vars instead of rendering the Driver params inline.
+**vars** are similar to **Importers** but they are used to generate data at runtime.
 
-vars are used to render additional data to pass along to the Driver.
+They differ from **Importers** in three key ways:
+
+* They have a **template** member in the component. This is a **Jinja2** template.
+* They are always executed after the other imports, this is so that you can use them in your **template** member.
+* Their components can either be a **dict** or a **list of dicts**. The keys in a **dict** may be computed in any order. Using a **list of dicts** you can specify the order the vars get generated in.
+
+```yaml
+    vars:
+    - formal:
+        template: 'Mr {{ args.first_name }}'
+        type: string
+    - unlucky_number:
+        template: '{{ args.lucky_number / 13 }}'
+        type: float
+          
+```
 
 ## Types
 
