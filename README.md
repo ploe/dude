@@ -8,7 +8,7 @@ It then can **transform** the returned data and give it back to the caller.
 
 It is **not a database management system (DBMS)**.
 
-Each **HTTP Endpoint** can have a **CREATE**, **READ**, **UPDATE** and **DELETE** method associated with it.
+Each **HTTP Endpoint** can have a **POST**, **GET**, **PATCH** and **DELETE** method associated with it.
 
 
 <img src="./docs/Dude%20-%20Top%20Level.png?raw=true" width="500">
@@ -37,12 +37,12 @@ By adding **Database Drivers (drivers)** to **dude** these resources could be ch
 
 The HTTP/dude methods are:
 
-* POST => CREATE
-* GET => READ
-* UPDATE => PATCH
-* DELETE => DELETE
+* POST
+* GET
+* PATCH
+* DELETE
 
-## CREATE
+## POST
 
 Posted JSON either be an **object** or **list of objects**.
 
@@ -50,7 +50,7 @@ They query will be executed on the server for every **object**.
 
 The caller should be notified on the success of each object being created. (This should be expanded)
 
-## READ
+## GET
 
 No JSON.
 
@@ -60,7 +60,7 @@ Query will be executed once.
 
 **Transforms** are run on the **list of objects**.
 
-## UPDATE
+## PATCH
 
 Posted JSON either be an **object** or **list of objects**.
 
@@ -92,9 +92,9 @@ It hands the primitives of the **pipeline** over to the app.
 
 The **pipeline** is made up of three parts (and the methods which use them):
 
-* Imports (CREATE, READ, UPDATE, DELETE)
-* Driver (CREATE, READ, UPDATE, DELETE)
-* Transforms (READ)
+* Imports (POST, GET, PATCH, DELETE)
+* Driver (POST, GET, PATCH, DELETE)
+* Transforms (GET)
 
 <img src="./docs/Dude%20-%20Pipeline%20Components.png?raw=true" width="500">
 
@@ -108,15 +108,15 @@ Only values that are imported are can be used by the **Drivers** and **Transform
 
 The following sources are derived from the HTTP Request.
 
-* args (CREATE, READ, UPDATE, DELETE)
-* cookies (CREATE, READ, UPDATE, DELETE)
-* headers (CREATE, READ, UPDATE, DELETE)
-* data (CREATE, UPDATE)
+* args (POST, GET, PATCH, DELETE)
+* cookies (POST, GET, PATCH, DELETE)
+* headers (POST, GET, PATCH, DELETE)
+* data (POST, PATCH)
 
 The import should look and feel sorta like this:
 
 ```yaml
-READ:
+GET:
   Imports:
     args:
       # components
@@ -172,7 +172,7 @@ In the future I'd want to add primitives for **date**, **datetime** and **time**
 Imports a **boolean** value.
 
 ```yaml
-READ:
+GET:
   Imports:
     args:
       enabled:
@@ -195,7 +195,7 @@ This allows the developer to explicitly set what they want to represent **false*
 
 # Drivers
 
-**Drivers** are the classes that interact with the database on behalf of the **endpoint**. They should implement the **CRUD** (**CREATE**, **READ**, **UPDATE** and **DELETE**) methods.
+**Drivers** are the classes that interact with the database on behalf of the **endpoint**. They should implement the **CRUD** (**POST**, **GET**, **PATCH** and **DELETE**) methods.
 
 The endpoint should just be able to handover the **query/parameters** to the **driver** when calling the appropriate method.
 
@@ -221,7 +221,7 @@ It then uses the **connection** and the **queries** to **exchange** with the **d
 **data** iterates over the **driver's** output and transforms each object in to the desired format. Each **object** in the **array** is one pass of transformations.
 
 ```yaml
-READ:
+GET:
   Transforms:
     data:
     - formal: "Sir {{ this.name }}"
@@ -286,7 +286,7 @@ This is currently locked to the simple types that are representable in JSON (i.e
 
 
 ```yaml
-READ:
+GET:
   Transforms:
     group:
       keys:
@@ -358,6 +358,8 @@ Limits the instances returned to this int.
 **jinja2** rendered value that's coerced to an **int**.
 
 # Vagrant
+
+**deprecated**
 
 A version of the test environment should run in Vagrant.
 

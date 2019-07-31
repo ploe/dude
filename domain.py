@@ -45,8 +45,8 @@ class Domain():
     def __init__(self, endpoint, request):
         self.endpoint = self.get_endpoint(endpoint, request)
 
-        tag = self.get_method_tag(request.method)
-        method = self.endpoint[tag.upper()]
+        tag = request.method
+        method = self.endpoint[tag]
 
         for key in ('Imports', 'Driver', 'Transforms'):
             component = method.get(key, {})
@@ -69,14 +69,6 @@ class Domain():
             raise EndpointInvalid
 
         return data
-
-    def get_method_tag(self, method):
-        return {
-            'POST': 'create',
-            'GET': 'read',
-            'PATCH': 'update',
-            'DELETE': 'delete'
-        }[method]
 
     def get(self):
         return self.importer, self.driver, None

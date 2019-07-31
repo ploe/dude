@@ -4,7 +4,7 @@ Info: A proof of concept endpoint
 Origin:
 - 'ploe.co.uk'
 
-CREATE:
+POST:
   Driver:
     stuff: true
   Imports:
@@ -17,7 +17,7 @@ CREATE:
   Transforms:
      more stuff: true
 
-READ:
+GET:
   Driver:
     bank: 'tests_mysql'
     query:
