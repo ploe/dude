@@ -6,10 +6,7 @@
 
 It then can **transform** the returned data and give it back to the caller.
 
-It is **not a database management system (DBMS)**.
-
 Each **HTTP Endpoint** can have a **POST**, **GET**, **PATCH** and **DELETE** method associated with it.
-
 
 <img src="./docs/Dude%20-%20Top%20Level.png?raw=true" width="500">
 
@@ -116,20 +113,19 @@ The following sources are derived from the HTTP Request.
 The import should look and feel sorta like this:
 
 ```yaml
-GET:
-  Imports:
-    args:
-      # components
-    headers:
-      # that
-    data:
-      # specify
-    cookies:
-      # data format
-    form:
-      # and values to import
-    vars:
-      # and some to render
+Imports:
+  args:
+    # components
+  headers:
+    # that
+  data:
+    # specify
+  cookies:
+    # data format
+  form:
+    # and values to import
+  vars:
+    # and some to render
 ```
 
 ## vars
@@ -138,18 +134,18 @@ GET:
 
 They differ from **Importers** in three key ways:
 
-* They have a **template** member in the component. This is a **Jinja2** template.
+* They have a **template** member in the component. This is a **Jinja2** template. This is used instead of a value from an above **source**.
 * They are always executed after the other imports, this is so that you can use them in your **template** member.
 * Their components can either be a **dict** or a **list of dicts**. The keys in a **dict** may be computed in any order. Using a **list of dicts** you can specify the order the vars get generated in.
 
 ```yaml
-    vars:
-    - formal:
-        template: 'Mr {{ args.first_name }}'
-        type: string
-    - unlucky_number:
-        template: '{{ args.lucky_number / 13 }}'
-        type: float
+  vars:
+  - formal:
+      template: 'Mr {{ args.first_name }}'
+      type: string
+  - unlucky_number:
+      template: '{{ args.lucky_number / 13 }}'
+      type: float
           
 ```
 
@@ -172,17 +168,16 @@ In the future I'd want to add primitives for **date**, **datetime** and **time**
 Imports a **boolean** value.
 
 ```yaml
-GET:
-  Imports:
-    args:
-      enabled:
-        as_false:
-        - list
-        - of
-        - values
-        reject:
-        - 'this == False'
-        type: boolean
+Imports:
+  args:
+    enabled:
+      as_false:
+      - list
+      - of
+      - values
+      reject:
+      - 'this == False'
+      type: boolean
 ```
 
 ### as\_false
@@ -221,21 +216,20 @@ It then uses the **connection** and the **queries** to **exchange** with the **d
 **data** iterates over the **driver's** output and transforms each object in to the desired format. Each **object** in the **array** is one pass of transformations.
 
 ```yaml
-GET:
-  Transforms:
-    data:
-    - formal: "Sir {{ this.name }}"
-      lucky:
-        publish: false
-        reject:
-        - value == 13
-        render: "{{ this.age - 13 }}"
-        type: int
-      name:
-        inherit: 'name'
-        type: str
-      alive:
-        type: bool
+Transforms:
+  data:
+  - formal: "Sir {{ this.name }}"
+    lucky:
+      publish: false
+      reject:
+      - value == 13
+      render: "{{ this.age - 13 }}"
+      type: int
+    name:
+      inherit: 'name'
+      type: str
+    alive:
+      type: bool
 ```
 
 ### key: value
@@ -286,19 +280,18 @@ This is currently locked to the simple types that are representable in JSON (i.e
 
 
 ```yaml
-GET:
-  Transforms:
-    group:
-      keys:
-      - name
-      data:
-      - name: "{{ group.max('created', name) }}"
-        man years:
-          render: "{{ group.sum('age') }}"
-          type: int
-        average:
-          render: "{{ group.mean('age') }}"
-          type: float
+Transforms:
+  group:
+    keys:
+    - name
+    data:
+    - name: "{{ group.max('created', name) }}"
+      man years:
+        render: "{{ group.sum('age') }}"
+        type: int
+      average:
+        render: "{{ group.mean('age') }}"
+        type: float
 ```
 
 ### group.count()
@@ -332,9 +325,9 @@ Returns the **total** of all instances in the **group** of **object[key]** added
 **order** arranges the instances by **key** by the **asc|desc** in **order**.
 
 ```yaml
-    order:
-    - { key: 'name', order: 'asc' }
-    - { key: 'age' order: 'desc' }
+  order:
+  - { key: 'name', order: 'asc' }
+  - { key: 'age' order: 'desc' }
 ```
 
 ## paginate
@@ -342,9 +335,9 @@ Returns the **total** of all instances in the **group** of **object[key]** added
 **paginate** can limit the output.
 
 ```yaml
-    paginate:
-      limit: "{{ args.limit }}"
-      page: "{{ args.page }}"
+  paginate:
+    limit: "{{ args.limit }}"
+    page: "{{ args.page }}"
 ```
 
 ### limit

@@ -8,6 +8,7 @@ import yaml
 from importer import Importer
 
 DOMAIN_PATH = os.getenv('DUDE_DOMAIN_PATH', '.')
+DOMAIN_DRIVER = os.getenv('DUDE_DOMAIN_DRIVER', 'dir')
 
 class EndpointInvalid(Exception):
     """Raised when the Endpoint is invalid, should 404"""
@@ -58,8 +59,6 @@ def __load_endpoints():
         tag = os.path.basename(path)
         endpoints[tag] = __load_yaml_methods(path)
 
-    #print(endpoints)
-
     return endpoints
 
 def __load_yaml_methods(path):
@@ -85,7 +84,7 @@ class Domain():
         tag = request.method
         method = self.endpoint[tag]
 
-        if not method.get('Enabled', False):
+        if not method.get('Enabled', True):
             raise EndpointInvalid
 
         for key in ('Imports', 'Driver', 'Transforms'):
@@ -101,7 +100,6 @@ class Domain():
             raise EndpointInvalid
 
         data = ENDPOINTS[endpoint]
-        print(data)
 
         return data
 
