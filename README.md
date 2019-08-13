@@ -138,6 +138,8 @@ They differ from **Importers** in three key ways:
 * They are always executed after the other imports, this is so that you can use them in your **template** member.
 * Their components can either be a **dict** or a **list of dicts**. The keys in a **dict** may be computed in any order. Using a **list of dicts** you can specify the order the vars get generated in.
 
+**Through development I've discovered that templating can be rather slow, I think a faster alternative would be to use the Python 'format' command. Templates should only be used in rare occurences, I reckon with 'format' being the defacto.**
+
 ```yaml
   vars:
   - formal:
