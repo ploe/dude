@@ -58,6 +58,20 @@ class Driver:
 
         return rendered
 
+    def inject_imported(self, imported, param):
+        source = None
+        tag = None
+        try:
+            source, tag = param.split('.', 1)
+
+        except ValueError:
+            pass
+
+        if source in ('args', 'data', 'cookies', 'form', 'headers', 'vars'):
+            return imported[source][tag]
+
+        return param
+
     def render_writes(self, imported, query):
         data = imported['data']
         local = imported.copy()
@@ -70,7 +84,6 @@ class Driver:
             local['data'] = datum
 
             for param in query['params']:
-                t = Template(param)
-                datum['params'] = self.render_params(local, query)
+                datum['params'].append(self.inject_imported(local, param))
 
         return data

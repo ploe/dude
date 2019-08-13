@@ -45,8 +45,8 @@ class DriverTestCase(unittest.TestCase):
             "INSERT INTO {} (firstname, lastname, hobby, lucky_number) VALUES (%s, %s, %s, %s);"
             .format(table),
             'params': [
-                '{{ data.firstname }}', '{{ data.lastname }}',
-                '{{ data.hobby }}', '{{ data.lucky_number }}'
+                'data.firstname', 'data.lastname', 'hi helo',
+                'data.lucky_number'
             ]
         }
         rows = self.driver.post(imported, query)
