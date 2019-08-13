@@ -51,12 +51,11 @@ class Driver:
         return data
 
     def render_params(self, imported, query):
-        rendered = []
+        params = []
         for param in query['params']:
-            t = Template(param)
-            rendered.append(t.render(**imported))
+            params.append(self.inject_imported(imported, param))
 
-        return rendered
+        return params
 
     def inject_imported(self, imported, param):
         source = None
@@ -83,7 +82,6 @@ class Driver:
             datum['params'] = []
             local['data'] = datum
 
-            for param in query['params']:
-                datum['params'].append(self.inject_imported(local, param))
+            datum['params'] = self.render_params(local, query)
 
         return data

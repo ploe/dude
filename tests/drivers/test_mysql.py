@@ -50,6 +50,21 @@ class DriverTestCase(unittest.TestCase):
         }
         return self.driver.post(imported, query)
 
+    def select_table(self, table, firstname, lucky_number):
+        imported = {
+            'args': {
+                'firstname': firstname,
+                'lucky_number': lucky_number,
+            }
+        }
+        query = {
+            'op':
+            "SELECT * FROM {} WHERE firstname=%s and lucky_number=%s ORDER BY id DESC"
+            .format(table),
+            'params': ['args.firstname', 'args.lucky_number'],
+        }
+        return self.driver.get(imported, query)
+
     def get_imported_data(self):
         with open('./examples/tests/data.yml') as f:
             return yaml.load(f, Loader=yaml.Loader)
@@ -81,24 +96,11 @@ class DriverTestCase(unittest.TestCase):
                 insert['id'] = insert.pop('lastrowid')
                 data.append(insert)
 
-        imported = {
-            'args': {
-                'firstname': firstname,
-                'lucky_number': lucky_number,
-            }
-        }
-        query = {
-            'op':
-            "SELECT * FROM {} WHERE firstname=%s and lucky_number=%s".format(
-                table),
-            'params': ['args.firstname', 'args.lucky_number'],
-        }
+        rows = self.select_table(table, firstname, lucky_number)
+        self.delete_table(table)
 
-        rows = self.driver.get(imported, query)
         for row in rows:
             datum = data.pop()
 
             for key in row:
                 self.assertEqual(row[key], datum[key])
-
-        self.delete_table(table)
