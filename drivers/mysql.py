@@ -21,8 +21,11 @@ class Driver:
         for datum in data:
             params = datum.pop('params')
             self.cursor.execute(op, params)
+            datum['rowcount'] = self.cursor.rowcount
 
         self.db.commit()
+
+        return data
 
     def get(self, imported, query):
         op = query['op']
@@ -52,7 +55,7 @@ class Driver:
 
     def render_params(self, imported, query):
         params = []
-        for param in query['params']:
+        for param in query.get('params', []):
             params.append(self.inject_imported(imported, param))
 
         return params

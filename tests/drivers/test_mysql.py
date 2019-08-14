@@ -69,19 +69,44 @@ class DriverTestCase(unittest.TestCase):
         with open('./examples/tests/data.yml') as f:
             return yaml.load(f, Loader=yaml.Loader)
 
-    def test_post(self):
-        table = 'dude_unittests.test_post'
+    def test_delete(self):
+        table = 'dude_unittests.test_delete'
+        self.delete_table(table)
         self.create_table(table)
 
+        firstname = 'George'
+
         rows = self.insert_into_table(table)
-
-        self.delete_table(table)
-
+        data = []
         for row in rows:
-            self.assertTrue(row.get('lastrowid', False))
+            if row['firstname'] != firstname:
+                row.pop('created')
+                row.pop('dob')
+                row['id'] = row.pop('lastrowid')
+                data.append(row)
+
+        imported = {'data': [], 'form': {'firstname': firstname}}
+        query = {
+            'op': "DELETE FROM {} WHERE firstname=%s".format(table),
+            'params': ['form.firstname']
+        }
+
+        self.driver.delete(imported, query)
+
+        imported = {}
+        query = {'op': "SELECT * FROM {} ORDER BY id DESC".format(table)}
+        selects = self.driver.get(imported, query)
+
+        for select in selects:
+            datum = data.pop()
+
+            for key in datum:
+                print(key)
+                self.assertEqual(select[key], datum[key])
 
     def test_get(self):
         table = 'dude_unittests.test_get'
+        self.delete_table(table)
         self.create_table(table)
 
         inserts = self.insert_into_table(table)
@@ -97,10 +122,19 @@ class DriverTestCase(unittest.TestCase):
                 data.append(insert)
 
         rows = self.select_table(table, firstname, lucky_number)
-        self.delete_table(table)
 
         for row in rows:
             datum = data.pop()
 
             for key in row:
                 self.assertEqual(row[key], datum[key])
+
+    def test_post(self):
+        table = 'dude_unittests.test_post'
+        self.delete_table(table)
+        self.create_table(table)
+
+        rows = self.insert_into_table(table)
+
+        for row in rows:
+            self.assertTrue(row.get('lastrowid', False))
