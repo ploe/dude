@@ -7,21 +7,15 @@ Origin:
 Driver:
   bank: 'tests_mysql'
   query:
-    op: "SELECT * FROM tests_mysql.test_data WHERE firstname=? and lucky_number=?"
+    op: "SELECT * FROM dude.people WHERE firstname=%s AND lucky_number=%s"
     params:
-    - "{{ args.firstname }}"
-    - "{{ args.lucky_number }}"
+    - "args.firstname"
+    - "args.lucky_number"
 
 Imports:
   args:
     lucky_number:
       type: integer
-    first_name:
+    firstname:
       type: string
-  vars:
-  - formal:
-      template: 'Mr {{ args.first_name }}'
-      type: string
-  - unlucky_number:
-      template: '{{ args.lucky_number / 13 }}'
-      type: float
+

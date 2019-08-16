@@ -33,6 +33,10 @@ class Driver:
     def get(self, imported, query):
         op = query['op']
         params = self.render_params(imported, query)
+        #print(params)
+        print(op)
+        for param in params:
+            print(param, type(param))
 
         self.cursor.execute(op, params)
 

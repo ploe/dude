@@ -32,4 +32,4 @@ def endpoint_method(endpoint):
     # transformer.transform(driver.data)
 
     # return Response(jsonify(transformer.data()))
-    return "Yos"
+    return jsonify(driver.call_method(importer.imported))
