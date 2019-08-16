@@ -1,0 +1,12 @@
+#! /usr/bin/env sh
+
+cd compose/tests/
+docker-compose up -d
+cd -
+
+export DUDE_DOMAIN_PATH='./examples/tests'
+export FLASK_APP=entrypoint.py
+
+. venv/bin/activate
+
+python -m unittest tests/**/test_*.py

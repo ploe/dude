@@ -80,8 +80,8 @@ class DriverTestCase(unittest.TestCase):
         data = []
         for row in rows:
             if row['firstname'] != firstname:
-                row.pop('created')
-                row.pop('dob')
+                for key in ('created', 'dob'):
+                    row.pop(key)
                 row['id'] = row.pop('lastrowid')
                 data.append(row)
 
@@ -101,7 +101,6 @@ class DriverTestCase(unittest.TestCase):
             datum = data.pop()
 
             for key in datum:
-                print(key)
                 self.assertEqual(select[key], datum[key])
 
     def test_get(self):
@@ -128,6 +127,11 @@ class DriverTestCase(unittest.TestCase):
 
             for key in row:
                 self.assertEqual(row[key], datum[key])
+
+    def test_patch(self):
+        table = 'dude_unittests.test_patch'
+        self.delete_table(table)
+        self.create_table(table)
 
     def test_post(self):
         table = 'dude_unittests.test_post'
