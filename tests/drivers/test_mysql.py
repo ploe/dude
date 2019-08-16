@@ -133,6 +133,32 @@ class DriverTestCase(unittest.TestCase):
         self.delete_table(table)
         self.create_table(table)
 
+        rows = self.insert_into_table(table)
+
+        firstname = "Myke"
+
+        data = []
+        for row in rows:
+            for key in ('created', 'dob'):
+                row.pop(key)
+
+            row['id'] = row.pop('lastrowid')
+
+            if row['firstname'] == firstname:
+                row['hobby'] = 'Unit Testing'
+                data.append(row)
+
+        imported = {'data': data}
+        query = {
+            'op': "UPDATE {} SET hobby=%s WHERE id=%s".format(table),
+            'params': ['data.hobby', 'data.id']
+        }
+
+        patched = self.driver.patch(imported, query)
+
+        for patch in patched:
+            self.assertEqual(patch.get('rowcount', 0), 1)
+
     def test_post(self):
         table = 'dude_unittests.test_post'
         self.delete_table(table)

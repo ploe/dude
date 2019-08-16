@@ -14,7 +14,7 @@ class Driver:
         self.cursor.close()
         self.db.close()
 
-    def delete(self, imported, query):
+    def modify(self, imported, query):
         op = query['op']
         data = self.render_writes(imported, query)
 
@@ -27,6 +27,9 @@ class Driver:
 
         return data
 
+    def delete(self, imported, query):
+        return self.modify(imported, query)
+
     def get(self, imported, query):
         op = query['op']
         params = self.render_params(imported, query)
@@ -35,13 +38,10 @@ class Driver:
 
         return self.cursor.fetchall()
 
+    def patch(self, imported, query):
+        return self.modify(imported, query)
+
     def post(self, imported, query):
-        return self.write(imported, query)
-
-    def patch(self, query):
-        return self.write(query)
-
-    def write(self, imported, query):
         op = query['op']
         data = self.render_writes(imported, query)
 
