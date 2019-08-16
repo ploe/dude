@@ -364,6 +364,22 @@ The test environment should be orchestrated with Docker Compose.
 
 # Unit Tests
 
+To ensure the environment for the unittest is set-up correctly and to run them use the following command from repo root:
+
+```sh
+. tests/entrypoint
+```
+
+It assumes that the virtualenc `venv` is setup in the project root.
+
+If it isn't this can be created with `requirements.txt`.
+
+```sh
+virtualenv -p python3 venv
+. venv/bin/activate
+pip install -r requirements.txt
+``` 
+
 At the very minimum every **Importer**, **Driver** and **Transformer** should be a class and have a unit test around it.
 
 # License
