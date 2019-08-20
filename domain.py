@@ -7,6 +7,20 @@ import yaml
 from driver import Driver
 from importer import Importer
 
+from warnings import warn
+
+class Transformer():
+    def __init__(self, transforms):
+        for source in ('data', 'group', 'order', 'paginate'):
+            component = transforms.get(source, {})
+            print(component)
+
+            # If the component is not a dict we're in trouble, so break now.
+            if type(component) not in (dict, list):
+                raise TypeError
+
+            setattr(self, source, component)
+
 
 class EndpointInvalid(Exception):
     """Raised when the Endpoint is invalid, should 404"""
@@ -77,6 +91,7 @@ class Domain():
             setattr(self, key.lower(), component)
 
         self.importer = Importer(self.imports)
+        self.transformer = Transformer(self.transforms)
 
         bank = load_yaml_bank(method['Driver']['bank'])
         self.driver = Driver(self.driver, request.method, bank)

@@ -19,3 +19,11 @@ Imports:
     firstname:
       type: string
 
+Transforms:
+  data: {}
+  group: {}
+  order:
+  - { key: 'lucky_number', order: 'desc' }
+  - { key: 'lucky_number', order: 'desc' }
+  paginate: {}
+
