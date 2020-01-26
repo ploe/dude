@@ -9,6 +9,7 @@ from importer import Importer
 
 from warnings import warn
 
+
 class Transformer():
     def __init__(self, transforms):
         for source in ('data', 'group', 'order', 'paginate'):
