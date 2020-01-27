@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+"""drivers/mysql unittests module"""
 
 import unittest
 
@@ -8,6 +9,7 @@ from drivers.mysql import Driver
 
 
 class DriverTestCase(unittest.TestCase):
+    """drivers/mysql TestCase"""
     def setUp(self):
         self.bank = {
             'host': "127.0.0.1",
@@ -21,6 +23,7 @@ class DriverTestCase(unittest.TestCase):
             "CREATE DATABASE IF NOT EXISTS dude_unittests;")
 
     def create_table(self, table):
+        """CREATE TABLE query for unittests"""
         schema = """
             CREATE TABLE IF NOT EXISTS {} (
                 id int NOT NULL AUTO_INCREMENT,
@@ -34,10 +37,12 @@ class DriverTestCase(unittest.TestCase):
         self.driver.cursor.execute(schema)
 
     def delete_table(self, table):
+        """DROP TABLE query for unittests"""
         query = "DROP TABLE IF EXISTS {}".format(table)
         self.driver.cursor.execute(query)
 
     def insert_into_table(self, table):
+        """INSERT INTO query for unittests"""
         imported = {'data': self.get_imported_data()}
         query = {
             'op':
@@ -51,6 +56,7 @@ class DriverTestCase(unittest.TestCase):
         return self.driver.post(imported, query)
 
     def select_table(self, table, firstname, lucky_number):
+        """SELECT query for unittests"""
         imported = {
             'args': {
                 'firstname': firstname,
@@ -65,11 +71,14 @@ class DriverTestCase(unittest.TestCase):
         }
         return self.driver.get(imported, query)
 
-    def get_imported_data(self):
-        with open('./examples/tests/data.yml') as f:
-            return yaml.load(f, Loader=yaml.Loader)
+    @staticmethod
+    def get_imported_data():
+        """get the example data for unittests"""
+        with open('./examples/tests/data.yml') as file:
+            return yaml.load(file, Loader=yaml.Loader)
 
     def test_delete(self):
+        """DELETE unittest"""
         table = 'dude_unittests.test_delete'
         self.delete_table(table)
         self.create_table(table)
@@ -104,6 +113,7 @@ class DriverTestCase(unittest.TestCase):
                 self.assertEqual(select[key], datum[key])
 
     def test_get(self):
+        """GET unittest"""
         table = 'dude_unittests.test_get'
         self.delete_table(table)
         self.create_table(table)
@@ -129,6 +139,7 @@ class DriverTestCase(unittest.TestCase):
                 self.assertEqual(row[key], datum[key])
 
     def test_patch(self):
+        """PATCH unittest"""
         table = 'dude_unittests.test_patch'
         self.delete_table(table)
         self.create_table(table)
@@ -160,6 +171,7 @@ class DriverTestCase(unittest.TestCase):
             self.assertEqual(patch.get('rowcount', 0), 1)
 
     def test_post(self):
+        """POST unittest"""
         table = 'dude_unittests.test_post'
         self.delete_table(table)
         self.create_table(table)
