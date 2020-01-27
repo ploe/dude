@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
+"""Integer TypeImporter module"""
 
 from importers.base import TypeImporter as base
 
 
 class TypeImporter(base):
+    """Integer TypeImporter class"""
     def init_type_importer(self, component):
         self.type = 'integer'
         self.load_component(component, [], 'reject')
@@ -11,6 +13,8 @@ class TypeImporter(base):
         self.value_to_integer()
 
     def value_to_integer(self):
+        """Coerces the value to an int, when possible, otherwise it pushes an
+        error to the TypeImporter"""
         try:
             self.value = int(self.value)
         except ValueError:
