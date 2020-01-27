@@ -20,6 +20,14 @@ def favicon():
     abort(404)
 
 
+@APP.route('/<path:endpoint>', methods=['OPTIONS'])
+def endpoint_options(endpoint):
+    """Placeholder for CORS stuff"""
+    error = "OPTIONS {endpoint} not implemented".format(endpoint=endpoint)
+    print(error)
+    abort(404)
+
+
 @APP.route('/<path:endpoint>', methods=['DELETE', 'GET', 'POST', 'PATCH'])
 def endpoint_method(endpoint):
     """The endpoint that drives the dude pipeline"""
@@ -36,10 +44,3 @@ def endpoint_method(endpoint):
 
     # return Response(jsonify(transformer.data()))
     return jsonify(driver.call_method(importer.imported))
-
-
-@APP.route('/<path:endpoint>', methods=['OPTIONS'])
-def endpoint_options(endpoint):
-    """Placeholder for CORS stuff"""
-    error = "OPTIONS {endpoint} not implemented".format(endpoint=endpoint)
-    abort(404, error)
