@@ -9,6 +9,8 @@ class TypeImporter():
         self.source = source
         self.original = self.value = value
         self.rule = rule
+        self.type = None
+        self.reject = None
 
         self.init_type_importer(component)
 
