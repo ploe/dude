@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+"""Importer module"""
 
 import importlib
 
@@ -6,30 +7,42 @@ from jinja2 import Template
 
 
 class Importer():
+    """Importer class"""
     def __init__(self, imports):
         self.errors = []
         # each of the following components components in the Imports
         # should be set as attributes
+
+        self.args = {}
+        self.cookies = {}
+        self.data = {}
+        self.form = {}
+        self.headers = {}
+
+        self.imported = {}
+
         for source in ('args', 'cookies', 'data', 'form', 'headers'):
             component = imports.get(source, {})
 
             # If the component is not a dict we're in trouble, so break now.
-            if type(component) is not dict:
+            if not isinstance(component, dict):
                 raise TypeError
 
             setattr(self, source, imports.get(source, {}))
 
         variables = imports.get('vars', [])
 
-        if type(variables) is dict:
+        if isinstance(variables, dict):
             variables = [variables]
 
-        if type(variables) is not list:
+        if not isinstance(variables, list):
             raise TypeError
 
         self.vars = variables
 
-    def get_type_importer(self, source, tag, value, component):
+    @staticmethod
+    def get_type_importer(source, tag, value, component):
+        """Fetch the correct TypeImporter class based on the type in the component"""
         name = "importers.{}".format(component['type'])
         module = importlib.import_module(name)
 
@@ -37,6 +50,7 @@ class Importer():
         return type_importer(source, tag, value, component)
 
     def import_payload(self, payload, components, source):
+        """Imports the payload for the components in source"""
         self.imported[source] = imported = {}
         for tag in components:
             component = components[tag]
@@ -57,6 +71,7 @@ class Importer():
             self.errors.extend(type_importer.errors)
 
     def import_data(self, data):
+        """Imports the payload in the data"""
         self.imported['data'] = imported = []
         if isinstance(data, dict):
             data = [data]
@@ -66,7 +81,9 @@ class Importer():
                 imported.append(self.import_payload(datum, self.data, 'data'))
 
     def import_vars(self):
-        if self.errors: return
+        """Import the vars, rendering them from a jinja2 template"""
+        if self.errors:
+            return
 
         self.imported['vars'] = imported = {}
         for iteration in self.vars:
@@ -74,8 +91,8 @@ class Importer():
                 component = iteration[tag]
 
                 template = component.pop('template')
-                t = Template(template)
-                value = t.render(**self.imported)
+                jinja_t = Template(template)
+                value = jinja_t.render(**self.imported)
 
                 type_importer = self.get_type_importer('vars', tag, value,
                                                        component)
@@ -85,7 +102,7 @@ class Importer():
                 self.errors.extend(type_importer.errors)
 
     def import_request(self, request):
-        self.imported = {}
+        """Iterates over the features of the request, to populate the Importer"""
         for source in ('args', 'cookies', 'form', 'headers'):
             payload = getattr(request, source)
             components = getattr(self, source)
