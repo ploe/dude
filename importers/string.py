@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
+"""String TypeImporter module"""
 
 from importers.base import TypeImporter as base
 
 
 class TypeImporter(base):
+    """String TypeImporter class"""
     def init_type_importer(self, component):
         self.type = 'string'
         self.load_component(component, [], 'reject')
@@ -11,6 +13,8 @@ class TypeImporter(base):
         self.value_to_string()
 
     def value_to_string(self):
+        """Coerces the value to an string, when possible, otherwise it pushes an
+        error to the TypeImporter"""
         try:
             self.value = str(self.value)
         except ValueError:

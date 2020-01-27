@@ -1,25 +1,36 @@
 #! /usr/bin/env python3
-
-import os
+"""The Flask entrypoint to dude"""
 
 from flask import Flask, abort, jsonify, request
-app = Flask(__name__)
 
 from domain import Domain
 
+APP = Flask(__name__)
 
-@app.route('/')
+
+@APP.route('/', methods=['GET'])
 def status():
+    """GET-ing '/' will tell you if the service is up"""
     return 'up!'
 
 
-@app.route('/favicon.ico')
+@APP.route('/favicon.ico', methods=['GET'])
 def favicon():
+    """Will add a static favicon at some point in the future"""
     abort(404)
 
 
-@app.route('/<path:endpoint>', methods=['DELETE', 'GET', 'POST', 'PATCH'])
+@APP.route('/<path:endpoint>', methods=['OPTIONS'])
+def endpoint_options(endpoint):
+    """Placeholder for CORS stuff"""
+    error = "OPTIONS {endpoint} not implemented".format(endpoint=endpoint)
+    print(error)
+    abort(404)
+
+
+@APP.route('/<path:endpoint>', methods=['DELETE', 'GET', 'POST', 'PATCH'])
 def endpoint_method(endpoint):
+    """The endpoint that drives the dude pipeline"""
     print("get endpoint")
     domain = Domain(endpoint, request)
     importer, driver, transformer = domain.get()

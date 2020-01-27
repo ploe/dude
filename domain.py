@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+"""Domain module"""
 
 import os
 
@@ -6,25 +7,11 @@ import yaml
 
 from driver import Driver
 from importer import Importer
-
-from warnings import warn
-
-class Transformer():
-    def __init__(self, transforms):
-        for source in ('data', 'group', 'order', 'paginate'):
-            component = transforms.get(source, {})
-            print(component)
-
-            # If the component is not a dict we're in trouble, so break now.
-            if type(component) not in (dict, list):
-                raise TypeError
-
-            setattr(self, source, component)
+from transformer import Transformer
 
 
 class EndpointInvalid(Exception):
     """Raised when the Endpoint is invalid, should 404"""
-    pass
 
 
 def __list_dirs(path):
@@ -52,8 +39,8 @@ def __load_endpoints():
 def __open_yaml(filename):
     data = {}
     try:
-        with open(filename, 'r') as f:
-            data = yaml.load(f, Loader=yaml.Loader)
+        with open(filename, 'r') as file:
+            data = yaml.load(file, Loader=yaml.Loader)
     except FileNotFoundError:
         pass
 
@@ -70,6 +57,7 @@ def __load_yaml_methods(path):
 
 
 def load_yaml_bank(bank):
+    """Imports the bank credentials from a YAML file"""
     src = "{}.yml".format(bank)
     filename = os.path.join(DOMAIN_PATH, 'banks', src)
 
@@ -77,6 +65,7 @@ def load_yaml_bank(bank):
 
 
 class Domain():
+    """Domain class represents every endpoint that is loaded at start-up"""
     def __init__(self, endpoint, request):
         self.endpoint = self.get_endpoint(endpoint)
 
@@ -85,6 +74,10 @@ class Domain():
 
         if not method.get('Enabled', True):
             raise EndpointInvalid
+
+        self.imports = None
+        self.driver = None
+        self.transforms = None
 
         for key in ('Imports', 'Driver', 'Transforms'):
             component = method.get(key, {})
@@ -96,7 +89,9 @@ class Domain():
         bank = load_yaml_bank(method['Driver']['bank'])
         self.driver = Driver(self.driver, request.method, bank)
 
-    def get_endpoint(self, endpoint):
+    @staticmethod
+    def get_endpoint(endpoint):
+        """Returns specific endoint from dict of ENDPOINTS"""
         if '/' in endpoint:
             raise EndpointInvalid
 
@@ -105,6 +100,7 @@ class Domain():
         return data
 
     def get(self):
+        """Returns the Importer, Driver and Transformer"""
         return self.importer, self.driver, None
 
 
