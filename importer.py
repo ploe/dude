@@ -8,11 +8,14 @@ from jinja2 import Template
 
 class Importer():
     """Importer class"""
+
+    # pylint: disable=too-many-instance-attributes
+    # With the 7 types of input and the list of errors the attributes come to 8.
+    # Depending on how I decide to use this I might remove some of these
+    # sources.
+
     def __init__(self, imports):
         self.errors = []
-        # each of the following components components in the Imports
-        # should be set as attributes
-
         self.args = {}
         self.cookies = {}
         self.data = {}
